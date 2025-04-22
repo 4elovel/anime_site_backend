@@ -44,6 +44,7 @@ use Liamtseva\Cinema\Models\Anime;
 
 
 use Liamtseva\Cinema\Models\Studio;
+use Liamtseva\Cinema\Services\TmdbService;
 use Liamtseva\Cinema\ValueObjects\Attachment;
 use ValentinMorice\FilamentJsonColumn\FilamentJsonColumn;
 
@@ -85,10 +86,29 @@ class AnimeResource extends Resource
                                     })->default(ApiSourceName::TMDB->value)
                                     ->required(),
 
+
                                 TextInput::make('id')
                                     ->label('ID')
-                                    ->numeric()
-                                    ->required(),
+                                    ->required()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
+                                        if ($get('source') == ApiSourceName::TMDB->value) {
+                                            if (!$state) return;
+
+                                            $tmdb = new TmdbService();
+                                            $data = $tmdb->getAnimeById($state);
+
+                                            if (!$data) {
+                                                $livewire->addError('api_sources', 'Failed to fetch data from TMDB');
+                                                return;
+                                            }
+
+                                            $formattedData = $tmdb->formatDataForForm($data);
+                                            $livewire->form->fill($formattedData);
+                                        }
+                                    })
+                                    ->reactive()
+                                    ->debounce(600)
+                                ,
                             ])
                             ->columns(2)
                             ->required(),

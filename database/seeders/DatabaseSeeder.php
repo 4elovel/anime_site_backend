@@ -27,8 +27,8 @@ class DatabaseSeeder extends Seeder
             SearchHistorySeeder::class,
             WatchHistorySeeder::class,
             AchievementSeeder::class,
-            AchievementUserSeeder::class,
-            NotificationHistorySeeder::class,
+            //AchievementUserSeeder::class,
+            //NotificationHistorySeeder::class,
 
         ]);
     }
