@@ -8,7 +8,10 @@
         "php": "^8.2",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
+        "laravel/jetstream": "^5.3",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "livewire/livewire": "^3.0",
         "valentin-morice/filament-json-column": "^1.5"
     },
     "require-dev": {
@@ -18,7 +21,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
-        "pestphp/pest": "^3.5",
+        "pestphp/pest": "^3.7",
         "pestphp/pest-plugin-laravel": "^3.0"
     },
     "autoload": {
