@@ -21,6 +21,13 @@ class AchievementUser extends Model
     public $timestamps = false;
 
     protected $table = 'achievement_user';
+
+    protected $fillable = [
+        'id',
+        'user_id',
+        'achievement_id',
+        'progress_count',
+    ];
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class);

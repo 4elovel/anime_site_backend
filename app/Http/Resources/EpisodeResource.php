@@ -21,7 +21,7 @@ class EpisodeResource extends JsonResource
             'number' => $this->number,
             'duration' => $this->duration,
             'air_date' => $this->air_date,
-            'poster' => $this->poster,
+            'poster' => $this->poster ?? null,
             'anime_id' => $this->anime_id,
             'anime' => new AnimeResource($this->whenLoaded('anime')),
             'video_players' => $this->video_players,

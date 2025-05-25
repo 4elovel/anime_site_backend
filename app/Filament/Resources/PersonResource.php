@@ -30,6 +30,7 @@ use AnimeSite\Enums\Gender;
 use AnimeSite\Enums\PersonType;
 use AnimeSite\Filament\Resources\PersonResource\Pages;
 use AnimeSite\Filament\Resources\PersonResource\RelationManagers\AnimesRelationManager;
+use AnimeSite\Filament\Resources\PersonResource\RelationManagers\TagsRelationManager;
 use AnimeSite\Models\Anime;
 use AnimeSite\Models\Person;
 use AnimeSite\Models\Studio;
@@ -246,6 +247,7 @@ class PersonResource extends Resource
     {
         return [
             AnimesRelationManager::class,
+            TagsRelationManager::class,
         ];
     }
 

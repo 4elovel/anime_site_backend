@@ -4,6 +4,8 @@ namespace AnimeSite\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use AnimeSite\Http\Resources\UserSubscriptionResource;
+use AnimeSite\Http\Resources\PaymentResource;
 
 class TariffResource extends JsonResource
 {

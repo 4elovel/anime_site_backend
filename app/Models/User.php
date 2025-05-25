@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use AnimeSite\Enums\Gender;
 use AnimeSite\Enums\NotificationType;
 use AnimeSite\Enums\Role;
@@ -27,7 +28,7 @@ use AnimeSite\Models\Traits\HasFiles;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, Notifiable, HasFiles;
+    use HasFactory, HasUlids, Notifiable, HasFiles, HasApiTokens;
     protected $casts = [
         'role' => Role::class,
         'gender' => Gender::class,

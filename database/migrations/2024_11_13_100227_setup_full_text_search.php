@@ -6,37 +6,40 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        $tsearchPath = env('POSTGRES_TSEARCH_PATH');
+        // Пропускаємо копіювання файлів під час тестування
+        if (app()->environment() !== 'testing') {
+            $tsearchPath = env('POSTGRES_TSEARCH_PATH');
 
-        // Перевіряємо, чи шлях до PostgreSQL вказаний
-        if (!$tsearchPath) {
-            throw new RuntimeException('POSTGRES_TSEARCH_PATH не вказано у файлі .env');
-        }
-
-        // Копіюємо файли для повнотекстового пошуку
-        $files = [
-            'uk_ua.affix' => "$tsearchPath/uk_ua.affix",
-            'uk_ua.dict' => "$tsearchPath/uk_ua.dict",
-            'ukrainian.stop' => "$tsearchPath/ukrainian.stop",
-        ];
-
-        foreach ($files as $source => $destination) {
-            $sourcePath = base_path("database/fts-dict/$source");
-
-            // Перевіряємо, чи існує вихідний файл
-            if (!file_exists($sourcePath)) {
-                throw new RuntimeException("Файл $sourcePath не знайдено");
+            // Перевіряємо, чи шлях до PostgreSQL вказаний
+            if (!$tsearchPath) {
+                throw new RuntimeException('POSTGRES_TSEARCH_PATH не вказано у файлі .env');
             }
 
-            // Перевіряємо, чи файл уже існує в цільовому місці
-            if (file_exists($destination)) {
-                // Пропускаємо копіювання, якщо файл вже існує
-                continue;
-            }
+            // Копіюємо файли для повнотекстового пошуку
+            $files = [
+                'uk_ua.affix' => "$tsearchPath/uk_ua.affix",
+                'uk_ua.dict' => "$tsearchPath/uk_ua.dict",
+                'ukrainian.stop' => "$tsearchPath/ukrainian.stop",
+            ];
 
-            // Копіюємо файл
-            if (!copy($sourcePath, $destination)) {
-                throw new RuntimeException("Не вдалося скопіювати $sourcePath до $destination");
+            foreach ($files as $source => $destination) {
+                $sourcePath = base_path("database/fts-dict/$source");
+
+                // Перевіряємо, чи існує вихідний файл
+                if (!file_exists($sourcePath)) {
+                    throw new RuntimeException("Файл $sourcePath не знайдено");
+                }
+
+                // Перевіряємо, чи файл уже існує в цільовому місці
+                if (file_exists($destination)) {
+                    // Пропускаємо копіювання, якщо файл вже існує
+                    continue;
+                }
+
+                // Копіюємо файл
+                if (!copy($sourcePath, $destination)) {
+                    throw new RuntimeException("Не вдалося скопіювати $sourcePath до $destination");
+                }
             }
         }
         // Видаляємо існуючі словники та конфігурації, якщо вони є

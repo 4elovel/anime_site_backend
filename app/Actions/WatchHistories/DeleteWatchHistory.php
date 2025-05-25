@@ -8,10 +8,19 @@ use AnimeSite\Models\WatchHistory;
 
 class DeleteWatchHistory
 {
+    /**
+     * Видалити запис історії переглядів.
+     *
+     * @param WatchHistory $watchHistory
+     * @return void
+     */
     public function __invoke(WatchHistory $watchHistory): void
     {
         Gate::authorize('delete', $watchHistory);
 
-        DB::transaction(fn () => $watchHistory->delete());
+        DB::transaction(function () use ($watchHistory) {
+            // Видаляємо запис
+            $watchHistory->delete();
+        });
     }
 }

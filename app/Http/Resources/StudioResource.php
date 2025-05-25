@@ -18,7 +18,6 @@ class StudioResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'description' => $this->description,
-            'logo' => $this->logo,
             'animes' => AnimeResource::collection($this->whenLoaded('animes')),
             'meta' => [
                 'title' => $this->meta_title,

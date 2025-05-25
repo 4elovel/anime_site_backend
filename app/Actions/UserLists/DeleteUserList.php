@@ -8,10 +8,20 @@ use AnimeSite\Models\UserList;
 
 class DeleteUserList
 {
+    /**
+     * Видалити список користувача.
+     *
+     * @param UserList $userList
+     * @return void
+     */
     public function __invoke(UserList $userList): void
     {
+        // Перевіряємо права доступу
         Gate::authorize('delete', $userList);
 
-        DB::transaction(fn () => $userList->delete());
+        DB::transaction(function () use ($userList) {
+            // Видаляємо запис
+            $userList->delete();
+        });
     }
 }

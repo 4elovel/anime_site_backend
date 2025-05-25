@@ -11,7 +11,7 @@ class GetAllEpisodes
 {
     public function __invoke(Request $request): LengthAwarePaginator
     {
-        Gate::authorize('viewAny', Episode::class);
+        // Gate::authorize('viewAny', Episode::class); // Дозволяємо перегляд епізодів без авторизації
 
         $perPage = (int) $request->input('per_page', 15);
 

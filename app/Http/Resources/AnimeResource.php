@@ -8,6 +8,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class AnimeResource extends JsonResource
 {
     /**
+     * Перетворити ресурс в масив.
+     *
      * @param Request $request
      * @return array<string, mixed>
      */
@@ -17,10 +19,10 @@ class AnimeResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'name' => $this->name,
-            'original_name' => $this->original_name,
+            'original_name' => $this->name,
             'description' => $this->description,
             'poster' => $this->poster,
-            'poster_url' => $this->poster_url,
+            'poster_url' => $this->when($this->poster, fn() => $this->getFileUrl($this->poster)),
             'kind' => $this->kind,
             'status' => $this->status,
             'period' => $this->period,
@@ -32,20 +34,20 @@ class AnimeResource extends JsonResource
             'first_air_date' => $this->first_air_date,
             'last_air_date' => $this->last_air_date,
             'imdb_score' => $this->imdb_score,
-            'kinopoisk_score' => $this->kinopoisk_score,
-            'shikimori_score' => $this->shikimori_score,
+            'user_rating_avg' => $this->whenHas('ratings_avg_number'),
             'aliases' => $this->aliases,
             'attachments' => $this->attachments,
             'related' => $this->related,
             'similars' => $this->similars,
             'api_sources' => $this->api_sources,
-            'is_published' => $this->is_published,
             'studio' => new StudioResource($this->whenLoaded('studio')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'genres' => TagResource::collection($this->whenLoaded('genres')),
             'people' => PersonResource::collection($this->whenLoaded('people')),
             'episodes' => EpisodeResource::collection($this->whenLoaded('episodes')),
             'ratings' => RatingResource::collection($this->whenLoaded('ratings')),
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            'selections' => SelectionResource::collection($this->whenLoaded('selections')),
             'meta' => [
                 'title' => $this->meta_title,
                 'description' => $this->meta_description,

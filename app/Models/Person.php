@@ -47,6 +47,14 @@ class Person extends Model
         return $this->morphToMany(Selection::class, 'selectionable', 'selectionables');
     }
 
+    /**
+     * Зв'язок з тегами (поліморфний)
+     */
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables');
+    }
+
     protected function fullName(): Attribute
     {
         return Attribute::make(
@@ -68,5 +76,15 @@ class Person extends Model
     public function newEloquentBuilder($query): PersonBuilder
     {
         return new PersonBuilder($query);
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 }

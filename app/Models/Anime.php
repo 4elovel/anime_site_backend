@@ -69,9 +69,12 @@ class Anime extends Model
         return $this->hasMany(Rating::class)->chaperone();
     }
 
-    public function tags(): BelongsToMany
+    /**
+     * Зв'язок з тегами (поліморфний)
+     */
+    public function tags(): MorphToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables');
     }
 
     public function people(): BelongsToMany
@@ -109,5 +112,50 @@ class Anime extends Model
     public function newEloquentBuilder($query): AnimeBuilder
     {
         return new AnimeBuilder($query);
+    }
+
+    /**
+     * Get similar anime based on the 'similars' field
+     *
+     * @return Builder
+     */
+    public function getSimilarAnime(): Builder
+    {
+        // Якщо поле similars порожнє, повертаємо порожній запит
+        if (empty($this->similars)) {
+            return self::query()->whereRaw('1 = 0'); // Завжди повертає порожній результат
+        }
+
+        // Отримуємо аніме за ID зі списку similars
+        return self::query()->whereIn('id', $this->similars);
+    }
+
+    /**
+     * Get related anime based on the 'related' field
+     *
+     * @return Builder
+     */
+    public function getRelatedAnime(): Builder
+    {
+        // Якщо поле related порожнє, повертаємо порожній запит
+        if (empty($this->related)) {
+            return self::query()->whereRaw('1 = 0'); // Завжди повертає порожній результат
+        }
+
+        // Отримуємо ID аніме зі списку related
+        $relatedIds = collect($this->related)->pluck('anime_id')->toArray();
+
+        // Отримуємо аніме за ID
+        return self::query()->whereIn('id', $relatedIds);
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 }

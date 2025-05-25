@@ -9,16 +9,18 @@ class PersonPolicy
 {
     /**
      * Determine whether the user can view any models.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
     /**
      * Determine whether the user can view the model.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function view(User $user, Person $person): bool
+    public function view(?User $user, Person $person): bool
     {
         return true;
     }

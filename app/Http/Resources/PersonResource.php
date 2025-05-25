@@ -23,7 +23,7 @@ class PersonResource extends JsonResource
             'type' => $this->type,
             'gender' => $this->gender,
             'birthday' => $this->birthday,
-            'photo' => $this->photo,
+            'photo' => $this->image,
             'animes' => AnimeResource::collection($this->whenLoaded('animes')),
             'meta' => [
                 'title' => $this->meta_title,

@@ -72,6 +72,14 @@ class Selection extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    /**
+     * Зв'язок з тегами (поліморфний)
+     */
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables');
+    }
+
     public function newEloquentBuilder($query): SelectionBuilder
     {
         return new SelectionBuilder($query);

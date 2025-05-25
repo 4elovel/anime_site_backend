@@ -17,7 +17,7 @@ class GetAllSelections
      */
     public function __invoke(Request $request): LengthAwarePaginator
     {
-        Gate::authorize('viewAny', Selection::class);
+        // Gate::authorize('viewAny', Selection::class); // Дозволяємо перегляд добірок без авторизації
 
         $perPage = (int) $request->input('per_page', 15);
         $query = Selection::query();

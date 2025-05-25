@@ -17,7 +17,7 @@ class GetAllTags
      */
     public function __invoke(Request $request): LengthAwarePaginator
     {
-        Gate::authorize('viewAny', Tag::class);
+        // Gate::authorize('viewAny', Tag::class); // Дозволяємо перегляд тегів без авторизації
 
         $perPage = (int) $request->input('per_page', 15);
 

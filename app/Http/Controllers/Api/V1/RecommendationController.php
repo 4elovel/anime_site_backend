@@ -15,7 +15,11 @@ use AnimeSite\Models\Anime;
 class RecommendationController extends Controller
 {
     /**
-     * Display a listing of general recommendations.
+     * Отримати список загальних рекомендацій.
+     *
+     * @param Request $request
+     * @param GetAllRecommendations $action
+     * @return JsonResponse
      */
     public function index(Request $request, GetAllRecommendations $action): JsonResponse
     {
@@ -33,12 +37,16 @@ class RecommendationController extends Controller
     }
 
     /**
-     * Get personalized recommendations for the authenticated user.
+     * Отримати персоналізовані рекомендації для авторизованого користувача.
+     *
+     * @param Request $request
+     * @param GetPersonalizedRecommendations $action
+     * @return JsonResponse
      */
     public function personalized(Request $request, GetPersonalizedRecommendations $action): JsonResponse
     {
         $paginated = $action($request);
-        
+
         return response()->json([
             'data' => AnimeResource::collection($paginated),
             'meta' => [
@@ -49,14 +57,19 @@ class RecommendationController extends Controller
             ],
         ]);
     }
-    
+
     /**
-     * Get recommendations based on a specific anime.
+     * Отримати рекомендації на основі конкретного аніме.
+     *
+     * @param Anime $anime
+     * @param Request $request
+     * @param GetBasedOnAnimeRecommendations $action
+     * @return JsonResponse
      */
     public function basedOnAnime(Anime $anime, Request $request, GetBasedOnAnimeRecommendations $action): JsonResponse
     {
         $paginated = $action($anime, $request);
-        
+
         return response()->json([
             'data' => AnimeResource::collection($paginated),
             'meta' => [
@@ -67,14 +80,18 @@ class RecommendationController extends Controller
             ],
         ]);
     }
-    
+
     /**
-     * Get recommendations based on user's watch history.
+     * Отримати рекомендації на основі історії переглядів користувача.
+     *
+     * @param Request $request
+     * @param GetBasedOnHistoryRecommendations $action
+     * @return JsonResponse
      */
     public function basedOnHistory(Request $request, GetBasedOnHistoryRecommendations $action): JsonResponse
     {
         $paginated = $action($request);
-        
+
         return response()->json([
             'data' => AnimeResource::collection($paginated),
             'meta' => [

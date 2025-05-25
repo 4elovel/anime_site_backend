@@ -17,10 +17,9 @@ class RatingResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'anime_id' => $this->anime_id,
-            'score' => $this->score,
+            'score' => $this->number,
             'review' => $this->review,
             'user' => new UserResource($this->whenLoaded('user')),
-            'anime' => new AnimeResource($this->whenLoaded('anime')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

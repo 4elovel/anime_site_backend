@@ -8,8 +8,10 @@ use Illuminate\Http\Response;
 use AnimeSite\Actions\Studios\CreateStudio;
 use AnimeSite\Actions\Studios\DeleteStudio;
 use AnimeSite\Actions\Studios\GetAllStudios;
+use AnimeSite\Actions\Studios\GetFilteredStudios;
 use AnimeSite\Actions\Studios\ShowStudio;
 use AnimeSite\Actions\Studios\UpdateStudio;
+use AnimeSite\DTOs\Studios\StudioIndexDTO;
 use AnimeSite\Http\Controllers\Controller;
 use AnimeSite\Http\Requests\StoreStudioRequest;
 use AnimeSite\Http\Requests\UpdateStudioRequest;
@@ -20,11 +22,54 @@ use AnimeSite\Models\Studio;
 class StudioController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримати список студій з пошуком, фільтрацією, сортуванням та пагінацією.
+     *
+     * Параметри запиту:
+     * - search: пошуковий запит
+     * - is_active: фільтрувати за активністю
+     * - is_published: фільтрувати за публікацією
+     * - min_anime_count: мінімальна кількість аніме
+     * - anime_kinds: типи аніме, які продюсувала студія
+     * - min_anime_score: мінімальний рейтинг аніме
+     * - anime_year: рік випуску аніме
+     * - popular: фільтрувати за популярністю
+     * - recently_added: нещодавно додані
+     * - days: кількість днів для нещодавно доданих
+     * - sort: поле для сортування (name, animes_count, created_at, updated_at)
+     * - direction: напрямок сортування (asc/desc)
+     * - per_page: кількість елементів на сторінці
+     * - page: номер сторінки
+     *
+     * @param Request $request
+     * @param GetAllStudios $action
+     * @return JsonResponse
      */
     public function index(Request $request, GetAllStudios $action): JsonResponse
     {
         $paginated = $action($request);
+
+        return response()->json([
+            'data' => StudioResource::collection($paginated),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * Отримати список студій з розширеною фільтрацією.
+     *
+     * @param Request $request
+     * @param GetFilteredStudios $action
+     * @return JsonResponse
+     */
+    public function filter(Request $request, GetFilteredStudios $action): JsonResponse
+    {
+        $dto = StudioIndexDTO::fromRequest($request);
+        $paginated = $action($dto);
 
         return response()->json([
             'data' => StudioResource::collection($paginated),

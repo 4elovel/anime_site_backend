@@ -8,9 +8,23 @@ use AnimeSite\Models\Comment;
 
 class DeleteComment
 {
+    /**
+     * Видалити коментар.
+     *
+     * @param Comment $comment
+     * @return void
+     */
     public function __invoke(Comment $comment): void
     {
         Gate::authorize('delete', $comment);
-        DB::transaction(fn () => $comment->delete());
+
+        DB::transaction(function () use ($comment) {
+            // Видаляємо всі лайки та репорти коментаря
+            $comment->likes()->delete();
+            $comment->reports()->delete();
+
+            // Видаляємо сам коментар
+            $comment->delete();
+        });
     }
 }

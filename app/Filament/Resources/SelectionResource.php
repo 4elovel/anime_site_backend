@@ -25,6 +25,7 @@ use AnimeSite\Filament\Resources\SelectionResource\Pages;
 use AnimeSite\Filament\Resources\SelectionResource\RelationManagers\AnimesRelationManager;
 use AnimeSite\Filament\Resources\SelectionResource\RelationManagers\EpisodesRelationManager;
 use AnimeSite\Filament\Resources\SelectionResource\RelationManagers\PersonsRelationManager;
+use AnimeSite\Filament\Resources\SelectionResource\RelationManagers\TagsRelationManager;
 use AnimeSite\Filament\Resources\SelectionResource\RelationManagers\UserListsRelationManager;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -220,6 +221,7 @@ class SelectionResource extends Resource
             AnimesRelationManager::class,
             PersonsRelationManager::class,
             EpisodesRelationManager::class,
+            TagsRelationManager::class,
         ];
     }
 

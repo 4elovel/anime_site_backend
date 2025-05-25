@@ -29,10 +29,12 @@ class Episode extends Model
     use HasFactory, HasSeo, HasUlids, HasFiles;
 
     protected $casts = [
-        'pictures' => AsCollection::class,
-        'video_players' => AsCollection::class,
+        'pictures' => 'array',
+        'video_players' => 'array',
         'air_date' => 'date',
     ];
+
+
 
     public function anime(): BelongsTo
     {

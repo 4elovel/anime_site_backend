@@ -21,10 +21,11 @@ use AnimeSite\Http\Controllers\Api\V1\NotificationController;
 use AnimeSite\Http\Controllers\Api\V1\TariffController;
 use AnimeSite\Http\Controllers\Api\V1\UserSubscriptionController;
 use AnimeSite\Http\Controllers\Api\V1\PaymentController;
+use AnimeSite\Http\Controllers\Api\TestController;
+
 
 // API Routes (v1)
 Route::prefix('v1')->group(function () {
-    // Public routes (no authentication required)
 
     // Auth routes
     Route::group(['prefix' => 'auth'], function () {
@@ -47,18 +48,27 @@ Route::prefix('v1')->group(function () {
         Route::get('/{anime}/comments', [AnimeController::class, 'comments']);
         Route::get('/{anime}/similar', [AnimeController::class, 'similar']);
         Route::get('/{anime}/related', [AnimeController::class, 'related']);
+
+        // Маршрути для адміністраторів
+        Route::middleware(['auth:sanctum', 'can:viewAny,AnimeSite\\Models\\Anime'])->group(function () {
+            Route::post('/', [AnimeController::class, 'store']);
+            Route::put('/{anime}', [AnimeController::class, 'update']);
+            Route::delete('/{anime}', [AnimeController::class, 'destroy']);
+        });
     });
 
     // Episode routes
     Route::prefix('episodes')->group(function () {
+        Route::get('/', [EpisodeController::class, 'index']);
+        Route::get('/latest', [EpisodeController::class, 'latest']);
         Route::get('/{episode}', [EpisodeController::class, 'show']);
         Route::get('/{episode}/comments', [EpisodeController::class, 'comments']);
-        Route::get('/latest', [EpisodeController::class, 'latest']);
     });
 
     // Person routes
     Route::prefix('people')->group(function () {
         Route::get('/', [PersonController::class, 'index']);
+        Route::get('/filter', [PersonController::class, 'filter']);
         Route::get('/{person}', [PersonController::class, 'show']);
         Route::get('/{person}/animes', [PersonController::class, 'animes']);
     });
@@ -66,6 +76,7 @@ Route::prefix('v1')->group(function () {
     // Studio routes
     Route::prefix('studios')->group(function () {
         Route::get('/', [StudioController::class, 'index']);
+        Route::get('/filter', [StudioController::class, 'filter']);
         Route::get('/{studio}', [StudioController::class, 'show']);
         Route::get('/{studio}/animes', [StudioController::class, 'animes']);
     });
@@ -92,14 +103,31 @@ Route::prefix('v1')->group(function () {
         Route::get('/{selection}', [SelectionController::class, 'show']); // TODO: refactor список аніме персон і епізодів
     });
 
-    // Search route
-    Route::get('/search', [SearchController::class, 'search']);
-    Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
+    // Search routes
+    Route::prefix('search')->group(function () {
+        Route::get('/', [SearchController::class, 'search']);
+        Route::get('/suggestions', [SearchController::class, 'suggestions']);
+
+        // Маршрути для авторизованих користувачів
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/history', [SearchController::class, 'history']);
+            Route::delete('/history', [SearchController::class, 'clearHistory']);
+        });
+    });
 
     // Tariff routes (public)
     Route::prefix('tariffs')->group(function () {
         Route::get('/', [TariffController::class, 'index']);
+        Route::get('/active', [TariffController::class, 'active']);
         Route::get('/{tariff}', [TariffController::class, 'show']);
+        Route::post('/compare', [TariffController::class, 'compare']);
+
+        // Маршрути для адміністраторів
+        Route::middleware('can:viewAny,AnimeSite\\Models\\Tariff')->group(function () {
+            Route::post('/', [TariffController::class, 'store']);
+            Route::put('/{tariff}', [TariffController::class, 'update']);
+            Route::delete('/{tariff}', [TariffController::class, 'destroy']);
+        });
     });
 
     // Authenticated routes
@@ -110,14 +138,26 @@ Route::prefix('v1')->group(function () {
 
         // User routes
         Route::prefix('users')->group(function () {
+            // Маршрути для адміністраторів
+            Route::middleware('can:viewAny,AnimeSite\\Models\\User')->group(function () {
+                Route::get('/', [UserController::class, 'index']);
+                Route::post('/', [UserController::class, 'store']);
+                Route::put('/{user}', [UserController::class, 'update']);
+                Route::delete('/{user}', [UserController::class, 'destroy']);
+            });
+
+            // Маршрути для автентифікованого користувача
             Route::get('/me', [UserController::class, 'me']);
             Route::put('/me', [UserController::class, 'updateMe']);
             Route::get('/{user}', [UserController::class, 'show']);
-            // Users can only update their own profile, controlled by policy
+
+            // Налаштування та профіль користувача
+            Route::get('/me/settings', [UserController::class, 'settings']);
             Route::put('/me/settings', [UserController::class, 'updateSettings']);
             Route::get('/me/profile', [UserController::class, 'profile']);
             Route::put('/me/profile', [UserController::class, 'updateProfile']);
-            // Routes for uploading user avatar and backdrop
+
+            // Завантаження аватара та фону
             Route::post('/me/avatar', [UserController::class, 'uploadAvatar']);
             Route::post('/me/backdrop', [UserController::class, 'uploadBackdrop']);
         });
@@ -133,6 +173,7 @@ Route::prefix('v1')->group(function () {
 
         // Comment routes - users can comment on content
         Route::prefix('comments')->group(function () {
+            // Маршрути для всіх користувачів
             Route::get('/', [CommentController::class, 'index']);
             Route::post('/', [CommentController::class, 'store']);
             Route::get('/{comment}', [CommentController::class, 'show']);
@@ -141,31 +182,66 @@ Route::prefix('v1')->group(function () {
             Route::post('/{comment}/like', [CommentController::class, 'like']);
             Route::delete('/{comment}/like', [CommentController::class, 'unlike']);
             Route::post('/{comment}/report', [CommentController::class, 'report']);
+
+            // Маршрути для модераторів
+            Route::middleware('can:moderate,AnimeSite\\Models\\Comment')->group(function () {
+                Route::get('/reported', [CommentController::class, 'reportedComments']);
+                Route::post('/{comment}/approve', [CommentController::class, 'approveComment']);
+                Route::post('/{comment}/reject', [CommentController::class, 'rejectComment']);
+            });
         });
 
         // User List routes - personal lists for users
         Route::prefix('user-lists')->group(function () {
-            Route::get('/', [UserListController::class, 'index']);
-            Route::post('/', [UserListController::class, 'store']);
-            Route::get('/{userList}', [UserListController::class, 'show']);
-            Route::put('/{userList}', [UserListController::class, 'update']);
-            Route::delete('/{userList}', [UserListController::class, 'destroy']);
-            Route::get('/type/{type}', [UserListController::class, 'byType']);
+//            Route::get('/', [UserListController::class, 'index']);
+//            Route::post('/', [UserListController::class, 'store']);
+//            Route::get('/{userList}', [UserListController::class, 'show']);
+//            Route::put('/{userList}', [UserListController::class, 'update']);
+//            Route::delete('/{userList}', [UserListController::class, 'destroy']);
+//            Route::get('/type/{type}', [UserListController::class, 'byType']);
+              Route::get('/user/{user}', [UserListController::class, 'userLists']);
+              Route::post('/user/{user}', [UserListController::class, 'addItems']);
+              Route::delete('/user/{user}', [UserListController::class, 'removeItems']);
         });
 
         // Watch History routes - track user's watch history
         Route::prefix('watch-history')->group(function () {
-            Route::get('/', [WatchHistoryController::class, 'index']);
+            // Маршрути для всіх користувачів
             Route::post('/', [WatchHistoryController::class, 'store']);
             Route::get('/{watchHistory}', [WatchHistoryController::class, 'show']);
             Route::put('/{watchHistory}', [WatchHistoryController::class, 'update']);
             Route::delete('/{watchHistory}', [WatchHistoryController::class, 'destroy']);
             Route::delete('/clear', [WatchHistoryController::class, 'clear']);
+            Route::delete('/clean-old', [WatchHistoryController::class, 'cleanOld']);
+
+            // Маршрути для користувачів
+            Route::get('/user/{user}', [WatchHistoryController::class, 'userWatchHistory']);
+            Route::delete('/user/{user}/clear', [WatchHistoryController::class, 'clearUserHistory']);
+
+            // Маршрути для адміністраторів
+            Route::middleware('can:viewAny,AnimeSite\\Models\\WatchHistory')->group(function () {
+                Route::get('/', [WatchHistoryController::class, 'index']);
+            });
         });
 
         // Achievement routes - view user achievements
         Route::prefix('achievements')->group(function () {
-            Route::get('/', [AchievementController::class, 'index']);
+            // Маршрути для адміністраторів
+            Route::middleware('can:viewAny,AnimeSite\\Models\\Achievement')->group(function () {
+                Route::get('/', [AchievementController::class, 'index']);
+                Route::post('/', [AchievementController::class, 'store']);
+                Route::put('/{achievement}', [AchievementController::class, 'update']);
+                Route::delete('/{achievement}', [AchievementController::class, 'destroy']);
+
+                // Маршрути для зв'язків користувачів з досягненнями
+                Route::get('/users', [AchievementController::class, 'achievementUsers']);
+                Route::post('/users', [AchievementController::class, 'storeAchievementUser']);
+                Route::get('/users/{achievementUser}', [AchievementController::class, 'showAchievementUser']);
+                Route::put('/users/{achievementUser}', [AchievementController::class, 'updateAchievementUser']);
+                Route::delete('/users/{achievementUser}', [AchievementController::class, 'destroyAchievementUser']);
+            });
+
+            // Маршрути для всіх користувачів
             Route::get('/{achievement}', [AchievementController::class, 'show']);
             Route::get('/user/{user}', [AchievementController::class, 'userAchievements']);
         });
@@ -199,12 +275,21 @@ Route::prefix('v1')->group(function () {
 
         // Subscription routes
         Route::prefix('subscriptions')->group(function () {
-            Route::get('/', [UserSubscriptionController::class, 'index']);
+            // Маршрути для всіх користувачів
             Route::get('/active', [UserSubscriptionController::class, 'active']);
             Route::get('/{subscription}', [UserSubscriptionController::class, 'show']);
-            Route::post('/', [UserSubscriptionController::class, 'store']);
+
+            // Маршрути для керування підписками
             Route::put('/{subscription}/cancel', [UserSubscriptionController::class, 'cancel']);
             Route::put('/{subscription}/renew', [UserSubscriptionController::class, 'renew']);
+
+            // Маршрути для адміністраторів
+            Route::middleware('can:viewAny,AnimeSite\\Models\\UserSubscription')->group(function () {
+                Route::get('/', [UserSubscriptionController::class, 'index']);
+                Route::post('/', [UserSubscriptionController::class, 'store']);
+                Route::put('/{subscription}/deactivate', [UserSubscriptionController::class, 'deactivate']);
+                Route::put('/{subscription}/extend', [UserSubscriptionController::class, 'extend']);
+            });
         });
 
         // Payment routes
@@ -214,6 +299,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [PaymentController::class, 'store']);
             Route::post('/callback', [PaymentController::class, 'callback']);
             Route::get('/status/{transaction_id}', [PaymentController::class, 'checkStatus']);
+            Route::put('/{payment}/cancel', [PaymentController::class, 'cancel']);
+            Route::put('/{payment}/refund', [PaymentController::class, 'refund']);
         });
     });
 });

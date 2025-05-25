@@ -26,7 +26,7 @@ class SelectionResource extends JsonResource
             'poster' => $this->poster,
             'user_id' => $this->user_id,
             'is_published' => $this->is_published,
-            'is_active' => $this->is_active,
+            'is_active' => $this->is_active ?? false,
             'user' => new UserResource($this->whenLoaded('user')),
             'animes_count' => $this->whenCounted('animes'),
             'animes' => AnimeResource::collection($this->whenLoaded('animes')),

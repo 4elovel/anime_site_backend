@@ -27,7 +27,11 @@ use AnimeSite\Models\Comment;
 class CommentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримати список коментарів.
+     *
+     * @param Request $request
+     * @param GetAllComments $action
+     * @return JsonResponse
      */
     public function index(Request $request, GetAllComments $action): JsonResponse
     {
@@ -45,7 +49,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Створити новий коментар.
+     *
+     * @param StoreCommentRequest $request
+     * @param CreateComment $action
+     * @return JsonResponse
      */
     public function store(StoreCommentRequest $request, CreateComment $action): JsonResponse
     {
@@ -58,7 +66,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Отримати конкретний коментар.
+     *
+     * @param Comment $comment
+     * @param ShowComment $action
+     * @return JsonResponse
      */
     public function show(Comment $comment, ShowComment $action): JsonResponse
     {
@@ -68,7 +80,12 @@ class CommentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Оновити коментар.
+     *
+     * @param UpdateCommentRequest $request
+     * @param Comment $comment
+     * @param UpdateComment $action
+     * @return JsonResponse
      */
     public function update(UpdateCommentRequest $request, Comment $comment, UpdateComment $action): JsonResponse
     {
@@ -78,7 +95,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Видалити коментар.
+     *
+     * @param Comment $comment
+     * @param DeleteComment $action
+     * @return JsonResponse
      */
     public function destroy(Comment $comment, DeleteComment $action): JsonResponse
     {
@@ -88,37 +109,61 @@ class CommentController extends Controller
     }
 
     /**
-     * Like a comment.
+     * Поставити лайк або дизлайк коментарю.
+     *
+     * @param LikeCommentRequest $request
+     * @param Comment $comment
+     * @param LikeComment $action
+     * @return JsonResponse
      */
     public function like(LikeCommentRequest $request, Comment $comment, LikeComment $action): JsonResponse
     {
         $action($comment, $request->validated());
 
-        return response()->json(['message' => 'Comment liked successfully']);
+        return response()->json([
+            'message' => $request->input('is_liked') ? 'Коментар успішно оцінено позитивно' : 'Коментар успішно оцінено негативно'
+        ]);
     }
 
     /**
-     * Unlike a comment.
+     * Скасувати лайк або дизлайк коментаря.
+     *
+     * @param Comment $comment
+     * @param UnlikeComment $action
+     * @return JsonResponse
      */
     public function unlike(Comment $comment, UnlikeComment $action): JsonResponse
     {
         $action($comment);
 
-        return response()->json(['message' => 'Comment unliked successfully']);
+        return response()->json([
+            'message' => 'Оцінка коментаря успішно скасована'
+        ]);
     }
 
     /**
-     * Report a comment.
+     * Поскаржитися на коментар.
+     *
+     * @param ReportCommentRequest $request
+     * @param Comment $comment
+     * @param ReportComment $action
+     * @return JsonResponse
      */
     public function report(ReportCommentRequest $request, Comment $comment, ReportComment $action): JsonResponse
     {
         $action($comment, $request->validated());
 
-        return response()->json(['message' => 'Comment reported successfully']);
+        return response()->json([
+            'message' => 'Скарга на коментар успішно відправлена'
+        ]);
     }
 
     /**
-     * Get reported comments (for moderators).
+     * Отримати коментарі, на які надійшли скарги (для модераторів).
+     *
+     * @param Request $request
+     * @param GetReportedComments $action
+     * @return JsonResponse
      */
     public function reportedComments(Request $request, GetReportedComments $action): JsonResponse
     {
@@ -136,7 +181,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Approve a reported comment (for moderators).
+     * Затвердити коментар після скарги (для модераторів).
+     *
+     * @param Comment $comment
+     * @param ApproveComment $action
+     * @return JsonResponse
      */
     public function approveComment(Comment $comment, ApproveComment $action): JsonResponse
     {
@@ -146,7 +195,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Reject a reported comment (for moderators).
+     * Відхилити коментар після скарги (для модераторів).
+     *
+     * @param Comment $comment
+     * @param RejectComment $action
+     * @return JsonResponse
      */
     public function rejectComment(Comment $comment, RejectComment $action): JsonResponse
     {

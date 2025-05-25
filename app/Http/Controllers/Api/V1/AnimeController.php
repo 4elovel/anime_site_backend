@@ -22,7 +22,41 @@ use AnimeSite\Models\Anime;
 class AnimeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримати список аніме з пошуком, фільтрацією, сортуванням та пагінацією.
+     *
+     * Параметри запиту:
+     * - search: пошуковий запит
+     * - kind: тип аніме (tv, movie, ova, ona, special, music)
+     * - status: статус аніме (announced, ongoing, released, finished)
+     * - period: сезон (winter, spring, summer, fall)
+     * - imdb_score: мінімальний рейтинг IMDB
+     * - country: країна виробництва
+     * - studio_id: ID студії
+     * - tag_id: ID тегу
+     * - person_id: ID людини
+     * - year: рік випуску
+     * - episodes_count: кількість епізодів
+     * - duration: тривалість епізоду в хвилинах
+     * - air_date_from, air_date_to: діапазон дат виходу
+     * - restricted_rating: вікове обмеження
+     * - source: джерело матеріалу
+     * - video_quality: якість відео
+     * - popular: фільтрувати за популярністю
+     * - min_ratings: мінімальна кількість оцінок для популярних аніме
+     * - top_rated: фільтрувати за найвищим рейтингом
+     * - min_score: мінімальний рейтинг для топових аніме
+     * - recently_added: фільтрувати за нещодавно доданими
+     * - recently_updated: фільтрувати за нещодавно оновленими
+     * - days: кількість днів для нещодавно доданих/оновлених
+     * - similar_to: ID аніме для пошуку схожих
+     * - related_to: ID аніме для пошуку пов'язаних
+     * - sort: поле для сортування (title, original_title, imdb_score, first_air_date, last_air_date, episodes_count, duration, created_at, updated_at)
+     * - per_page: кількість елементів на сторінці
+     * - page: номер сторінки
+     *
+     * @param Request $request
+     * @param GetAllAnimes $action
+     * @return JsonResponse
      */
     public function index(Request $request, GetAllAnimes $action): JsonResponse
     {
@@ -53,7 +87,23 @@ class AnimeController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Отримати інформацію про конкретне аніме.
+     *
+     * Завантажує всі зв'язані дані, включаючи:
+     * - Студію
+     * - Теги та жанри
+     * - Людей (акторів, режисерів тощо)
+     * - Епізоди
+     * - Оцінки та середній рейтинг
+     * - Коментарі та їх авторів
+     * - Добірки, в яких є це аніме
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":{"id":"01jvadxmwqc0956dy2vqhg47vc","slug":"naruto","name":"Naruto","description":"Naruto is a Japanese manga series written and illustrated by Masashi Kishimoto.","poster":"https://example.com/poster.jpg","meta":{"title":"Naruto | AnimeSite","description":"Naruto is a Japanese manga series written and illustrated by Masashi Kishimoto.","image":"https://example.com/meta-image.jpg"}},"meta":null}
+     *
+     * @param Anime $anime
+     * @param ShowAnime $action
+     * @return JsonResponse
      */
     public function show(Anime $anime, ShowAnime $action): JsonResponse
     {
@@ -160,10 +210,26 @@ class AnimeController extends Controller
 
     /**
      * Get episodes for an anime.
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":[],"meta":{"current_page":1,"last_page":1,"per_page":15,"total":0}}
      */
     public function episodes(Anime $anime): JsonResponse
     {
         $episodes = $anime->episodes()->paginate();
+
+        // Перевірка, чи є епізоди
+        if ($episodes->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $episodes->perPage(),
+                    'total' => 0,
+                ],
+            ]);
+        }
 
         return response()->json([
             'data' => EpisodeResource::collection($episodes),
@@ -178,10 +244,26 @@ class AnimeController extends Controller
 
     /**
      * Get ratings for an anime.
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":[],"meta":{"current_page":1,"last_page":1,"per_page":15,"total":0}}
      */
     public function ratings(Anime $anime): JsonResponse
     {
         $ratings = $anime->ratings()->paginate();
+
+        // Перевірка, чи є рейтинги
+        if ($ratings->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $ratings->perPage(),
+                    'total' => 0,
+                ],
+            ]);
+        }
 
         return response()->json([
             'data' => RatingResource::collection($ratings),
@@ -196,10 +278,26 @@ class AnimeController extends Controller
 
     /**
      * Get comments for an anime.
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":[],"meta":{"current_page":1,"last_page":1,"per_page":15,"total":0}}
      */
     public function comments(Anime $anime): JsonResponse
     {
         $comments = $anime->comments()->paginate();
+
+        // Перевірка, чи є коментарі
+        if ($comments->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $comments->perPage(),
+                    'total' => 0,
+                ],
+            ]);
+        }
 
         return response()->json([
             'data' => CommentResource::collection($comments),
@@ -214,10 +312,26 @@ class AnimeController extends Controller
 
     /**
      * Get similar anime.
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":[],"meta":{"current_page":1,"last_page":1,"per_page":15,"total":0}}
      */
     public function similar(Anime $anime): JsonResponse
     {
         $similar = $anime->getSimilarAnime()->paginate();
+
+        // Перевірка, чи є схожі аніме
+        if ($similar->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $similar->perPage(),
+                    'total' => 0,
+                ],
+            ]);
+        }
 
         return response()->json([
             'data' => AnimeResource::collection($similar),
@@ -232,10 +346,26 @@ class AnimeController extends Controller
 
     /**
      * Get related anime.
+     *
+     * @urlParam anime_slug string required The slug of the anime. Example: naruto
+     * @response {"data":[],"meta":{"current_page":1,"last_page":1,"per_page":15,"total":0}}
      */
     public function related(Anime $anime): JsonResponse
     {
         $related = $anime->getRelatedAnime()->paginate();
+
+        // Перевірка, чи є пов'язані аніме
+        if ($related->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $related->perPage(),
+                    'total' => 0,
+                ],
+            ]);
+        }
 
         return response()->json([
             'data' => AnimeResource::collection($related),

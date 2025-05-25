@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use AnimeSite\Filament\Resources\TagResource\Pages;
 use AnimeSite\Filament\Resources\TagResource\RelationManagers\AnimesRelationManager;
+use AnimeSite\Filament\Resources\TagResource\RelationManagers\PersonsRelationManager;
+use AnimeSite\Filament\Resources\TagResource\RelationManagers\SelectionsRelationManager;
 use AnimeSite\Models\Tag;
 use PhpParser\Node\Stmt\Label;
 
@@ -226,6 +228,8 @@ class TagResource extends Resource
     {
         return [
             AnimesRelationManager::class,
+            PersonsRelationManager::class,
+            SelectionsRelationManager::class,
         ];
     }
 

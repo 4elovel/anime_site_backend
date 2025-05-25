@@ -22,9 +22,10 @@ class Payment extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'liqpay_data' => AsCollection::class,
+        'liqpay_data' => 'array',
         'status' => PaymentStatus::class,
     ];
+
 
     public function user(): BelongsTo
     {
