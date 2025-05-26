@@ -2,8 +2,11 @@
 
 namespace Liamtseva\Cinema\Providers;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
+use Liamtseva\Cinema\Models\Episode;
+use Liamtseva\Cinema\Notifications\Channels\CustomDatabaseChannel;
+use Liamtseva\Cinema\Observers\EpisodeObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +14,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Model::unguard();
-        Model::shouldBeStrict();
+        // Register observers
+        Episode::observe(EpisodeObserver::class);
+
+        // Register custom notification channel
+        Notification::extend('custom-database', function ($app) {
+            return new CustomDatabaseChannel();
+        });
+
+        // Other boot code...
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Liamtseva\Cinema\Http\Controllers\Auth\AuthController;
+use Liamtseva\Cinema\Http\Controllers\NotificationController;
 
 // Use the sanctum middleware group
 Route::middleware(['web'])->group(function () {
@@ -28,4 +29,22 @@ Route::middleware(['web'])->group(function () {
         });
         Route::post('/logout', [AuthController::class, 'logout']);
     });
+});
+
+// Notification routes
+Route::middleware('auth:sanctum')->group(function () {
+    // Get user notifications with pagination
+    Route::get('/notifications', [NotificationController::class, 'index']);
+
+    // Get specific notification and mark as read
+    Route::get('/notifications/{id}', [NotificationController::class, 'show']);
+
+    // Mark notification as read
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+    // Mark all notifications as read
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+    // Get unread notification count
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
 });

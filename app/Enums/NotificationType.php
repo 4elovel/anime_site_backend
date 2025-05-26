@@ -4,25 +4,38 @@ namespace Liamtseva\Cinema\Enums;
 
 enum NotificationType: string
 {
-    case ACHIEVEMENTS = 'Ви отримали нове досягнення!';
-    case NEW_EPISODE = 'Вийшла нова серія!';
-    case NEW_ANIME = 'Додано нове аніме до каталогу!';
-    case RECOMMENDATION = 'Ми знайшли для вас нове аніме, яке може сподобатися!';
-    case SUBSCRIPTION = 'Підписка на вашого улюбленого автора оновлена!';
-    case ANIME_REMINDER = 'Не забудьте переглянути новий епізод!';
-    case POPULAR_ANIME = 'Ось топ популярних аніме цього тижня!';
+    case NEW_EPISODE = 'new_episode';
+    case ANIME_UPDATE = 'anime_update';
+    case SYSTEM = 'system';
+    case COMMENT_REPLY = 'comment_reply';
 
-    public function getName(): string
-    {
-        return $this->value;
-    }
-
-    /**
-     * Отримати всі варіанти повідомлень як масив.
-     */
     public static function all(): array
     {
-        return array_map(fn($case) => $case->value, self::cases());
+        return [
+            self::NEW_EPISODE->value => 'Новий епізод',
+            self::ANIME_UPDATE->value => 'Оновлення аніме',
+            self::SYSTEM->value => 'Системне повідомлення',
+            self::COMMENT_REPLY->value => 'Відповідь на коментар',
+        ];
     }
 
+    public function label(): string
+    {
+        return match($this) {
+            self::NEW_EPISODE => 'Новий епізод',
+            self::ANIME_UPDATE => 'Оновлення аніме',
+            self::SYSTEM => 'Системне повідомлення',
+            self::COMMENT_REPLY => 'Відповідь на коментар',
+        };
+    }
+
+    public function icon(): string
+    {
+        return match($this) {
+            self::NEW_EPISODE => 'heroicon-o-play',
+            self::ANIME_UPDATE => 'heroicon-o-film',
+            self::SYSTEM => 'heroicon-o-cog',
+            self::COMMENT_REPLY => 'heroicon-o-chat-bubble-left',
+        };
+    }
 }

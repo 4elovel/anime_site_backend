@@ -67,10 +67,10 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Rating::class)->chaperone();
     }
 
-    public function animeNotifications()
+    public function subscribedAnime(): BelongsToMany
     {
         return $this->belongsToMany(Anime::class, 'anime_user_notifications')
-            ->as('notification')
+            ->as('subscription')
             ->withTimestamps();
     }
 
@@ -122,9 +122,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(UserList::class);
     }
 
-    public function notificationHistory(): HasMany
+    public function notifications(): HasMany
     {
-        return $this->hasMany(NotificationHistory::class);
+        return $this->hasMany(NotificationHistory::class)->orderBy('created_at', 'desc');
+    }
+
+    public function unreadNotifications(): HasMany
+    {
+        return $this->notifications()->whereNull('read_at');
     }
 
     public function favoritePeople(): HasMany
