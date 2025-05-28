@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Models\Traits;
+namespace AnimeSite\Models\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -25,19 +25,17 @@ trait HasSeo
         );
     }
 
-    protected function slug(): Attribute
+    public static function generateSlug(string $value): string
     {
-        return Attribute::make(
-            get: fn ($value) => $value,
-            set: fn ($value) => str($value)->slug().'-'.str(str()->random(6))->lower()
-        );
+        return str($value)->slug().'-'.str(str()->random(6))->lower();
     }
 
-    protected function metaDescription(): Attribute
+    public static function makeMetaTitle(string $title): string
     {
-        return Attribute::make(
-            get: fn ($value) => $value,
-            set: fn ($value) => Str::length($value) > 376 ? Str::substr($value, 0, 373).'...' : $value
-        );
+        return $title . ' | ' . config('app.name');
+    }
+    public static function makeMetaDescription(string $description): string
+    {
+        return Str::length($description) > 376 ? Str::substr($description, 0, 373).'...' : $description;
     }
 }

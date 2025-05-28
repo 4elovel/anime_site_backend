@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
-use Liamtseva\Cinema\Enums\CommentReportType;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\CommentReport;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Enums\CommentReportType;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\CommentReport;
+use AnimeSite\Models\User;
 
 class CommentReportSeeder extends Seeder
 {

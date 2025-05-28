@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources\CommentResource\Pages;
+namespace AnimeSite\Filament\Resources\CommentResource\Pages;
 
-use Liamtseva\Cinema\Filament\Resources\CommentResource;
+use AnimeSite\Filament\Resources\CommentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

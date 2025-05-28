@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Models\Tag;
+use AnimeSite\Models\Tag;
 
 /**
  * @extends Factory<Tag>

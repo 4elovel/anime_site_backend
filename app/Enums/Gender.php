@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum Gender: string
 {
@@ -22,6 +22,15 @@ enum Gender: string
             self::MALE => 'Чоловіча',
             self::FEMALE => 'Жіноча',
             self::OTHER => 'Інша',
+        };
+    }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::MALE => 'info',
+            self::FEMALE => 'danger',
+            self::OTHER => 'success',
         };
     }
 }

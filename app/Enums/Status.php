@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum Status: string
 {
@@ -71,4 +71,16 @@ enum Status: string
             ->mapWithKeys(fn (self $source) => [$source->value => $source->name()])
             ->toArray();
     }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::ANONS => 'info',
+            self::ONGOING => 'primary',
+            self::RELEASED => 'success',
+            self::CANCELED => 'danger',
+            self::RUMORED => 'warning',
+        };
+    }
+
 }

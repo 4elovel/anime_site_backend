@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Selection;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Selection;
 
 // TODO: відрефакторити
 class SelectionSeeder extends Seeder

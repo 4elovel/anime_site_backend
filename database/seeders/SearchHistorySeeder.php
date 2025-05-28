@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\SearchHistory;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\SearchHistory;
+use AnimeSite\Models\User;
 
 class SearchHistorySeeder extends Seeder
 {

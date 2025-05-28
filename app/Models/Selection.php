@@ -1,7 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
+use AnimeSite\Builders\SelectionBuilder;
 use Database\Factories\SelectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -10,8 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Facades\DB;
-use Liamtseva\Cinema\Models\Traits\HasSeo;
+use AnimeSite\Models\Traits\HasFiles;
+use AnimeSite\Models\Traits\HasSeo;
 
 /**
  * @mixin IdeHelperSelection
@@ -19,24 +20,46 @@ use Liamtseva\Cinema\Models\Traits\HasSeo;
 class Selection extends Model
 {
     /** @use HasFactory<SelectionFactory> */
-    use HasFactory, HasSeo, HasUlids;
+    use HasFactory, HasSeo, HasUlids, HasFiles;
+
+    protected $fillable = [
+        'user_id',
+        'slug',
+        'name',
+        'description',
+        'poster',
+        'is_published',
+        'is_active',
+        'meta_title',
+        'meta_description',
+        'meta_image',
+    ];
 
     protected $hidden = ['searchable'];
+
+    protected $casts = [
+        'is_published' => 'boolean',
+        'is_active' => 'boolean',
+    ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-
     public function animes(): MorphToMany
     {
-        return $this->morphedByMany(Anime::class, 'selectionable');
+        return $this->morphedByMany(Anime::class, 'selectionable', 'selectionables');
     }
 
     public function persons(): MorphToMany
     {
-        return $this->morphedByMany(Person::class, 'selectionable');
+        return $this->morphedByMany(Person::class, 'selectionable', 'selectionables');
+    }
+
+    public function episodes(): MorphToMany
+    {
+        return $this->morphedByMany(Episode::class, 'selectionable', 'selectionables');
     }
 
     public function userLists(): MorphMany
@@ -49,17 +72,16 @@ class Selection extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function scopeSearch(Builder $query, string $search): Builder
+    /**
+     * Зв'язок з тегами (поліморфний)
+     */
+    public function tags(): MorphToMany
     {
-        return $query
-            ->select('*')
-            ->addSelect(DB::raw("ts_rank(searchable, websearch_to_tsquery('ukrainian', ?)) AS rank"))
-            ->addSelect(DB::raw("ts_headline('ukrainian', name, websearch_to_tsquery('ukrainian', ?), 'HighlightAll=true') AS name_highlight"))
-            ->addSelect(DB::raw("ts_headline('ukrainian', description, websearch_to_tsquery('ukrainian', ?), 'HighlightAll=true') AS description_highlight"))
-            ->addSelect(DB::raw('similarity(name, ?) AS similarity'))
-            ->whereRaw("searchable @@ websearch_to_tsquery('ukrainian', ?)", [$search, $search, $search, $search, $search])
-            ->orWhereRaw('name % ?', [$search])
-            ->orderByDesc('rank')
-            ->orderByDesc('similarity');
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables');
+    }
+
+    public function newEloquentBuilder($query): SelectionBuilder
+    {
+        return new SelectionBuilder($query);
     }
 }

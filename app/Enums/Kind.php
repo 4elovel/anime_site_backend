@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum Kind: string
 {
@@ -83,4 +83,17 @@ enum Kind: string
             ])
             ->toArray();
     }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::TV_SERIES => 'danger',
+            self::TV_SPECIAL => 'warning',
+            self::FULL_LENGTH => 'success',
+            self::SHORT_FILM => 'info',
+            self::OVA => 'danger',
+            self::ONA => 'success',
+        };
+    }
+
 }

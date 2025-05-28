@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
 use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use AnimeSite\Builders\CommentBuilder;
 
 /**
  * @mixin IdeHelperComment
@@ -45,16 +46,6 @@ class Comment extends Model
         return $this->hasMany(CommentReport::class)->chaperone();
     }
 
-    public function scopeReplies(Builder $query): Builder
-    {
-        return $query->whereNotNull('parent_id');
-    }
-
-    public function scopeRoots(Builder $query): Builder
-    {
-        return $query->whereNull('parent_id');
-    }
-
     public function isRoot(): bool
     {
         return $this->parent_id === null;
@@ -87,5 +78,10 @@ class Comment extends Model
         return Attribute::make(
             set: fn ($value) => trim($value)
         );
+    }
+
+    public function newEloquentBuilder($query): CommentBuilder
+    {
+        return new CommentBuilder($query);
     }
 }

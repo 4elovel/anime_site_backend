@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum AttachmentType: string
 {
@@ -11,6 +11,8 @@ enum AttachmentType: string
     case BEHIND_THE_SCENES = 'behind_the_scenes'; // За лаштунками
     case BAD_TAKES = 'bad_takes'; // Невдалі дублі
     case SHORT_FILMS = 'short_films'; // Короткометражні фільми
+
+
 
     public static function labels(): array
     {

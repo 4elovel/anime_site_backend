@@ -1,20 +1,27 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources;
+namespace AnimeSite\Filament\Resources;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Filament\Resources\CommentResource\Pages;
-use Liamtseva\Cinema\Filament\Resources\CommentResource\RelationManagers;
+use AnimeSite\Filament\Resources\CommentResource\Pages;
+use AnimeSite\Filament\Resources\CommentResource\RelationManagers;
+use AnimeSite\Filament\Resources\CommentResource\RelationManagers\ChildrenRelationManager;
+use AnimeSite\Filament\Resources\CommentResource\RelationManagers\LikesRelationManager;
+use AnimeSite\Filament\Resources\CommentResource\RelationManagers\ReportsRelationManager;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -22,56 +29,65 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\UserList;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\UserList;
 
 class CommentResource extends Resource
 {
     protected static ?string $model = Comment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
-    protected static ?string $navigationSubGroup  = 'Коментарі';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
     protected static ?string $navigationGroup = 'Взаємодія';
+    protected static ?string $pluralModelLabel = 'Коментарі';
+    protected static ?string $modelLabel = 'Коментар';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                MorphToSelect::make('commentable')
-                    ->label('Пов’язаний об’єкт')
-                    ->searchable()
-                    ->required()
-                    ->types([
-                        MorphToSelect\Type::make(Episode::class)
-                            ->titleAttribute('name'),
-                        MorphToSelect\Type::make(Anime::class)
-                            ->titleAttribute('name'),
-                        MorphToSelect\Type::make(Selection::class)
-                            ->titleAttribute('name'),
-                    ]),
+                Section::make()
+                    ->schema([
+                        MorphToSelect::make('commentable')
+                            ->label('Пов’язаний об’єкт')
+                            ->searchable()
+                            ->required()
+                            ->preload()
+                            ->types([
+                                MorphToSelect\Type::make(Episode::class)
+                                    ->titleAttribute('name'),
+                                MorphToSelect\Type::make(Anime::class)
+                                    ->titleAttribute('name'),
+                                MorphToSelect\Type::make(Selection::class)
+                                    ->titleAttribute('name'),
+                                MorphToSelect\Type::make(Comment::class)
+                                    ->titleAttribute('body'),
+                            ]),
+                    ])
+                    ->columnSpan(3),
+                Section::make()
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Користувач')
+                            ->searchable()
+                            ->preload()
+                            ->relationship('user', 'name')
+                            ->required(),
 
-                Select::make('parent_id')
-                    ->label('Батьківський коментар')
-                    ->relationship('parent', 'body')
-                    ->nullable()
-                    ->searchable(),
-
-                Select::make('user_id')
-                    ->label('Користувач')
-                    ->relationship('user', 'name')
-                    ->required(),
-
-                Forms\Components\TextInput::make('body')
-                    ->label('Текст коментаря')
-                    ->required(),
-
-                Checkbox::make('is_spoiler')
-                    ->label('Спойлер')
-                    ->default(false),
-
+                        TextInput::make('body')
+                            ->label('Текст коментаря')
+                            ->required(),
+                    ])
+                    ->columnSpan(2),
+                Section::make()
+                    ->schema([
+                        Checkbox::make('is_spoiler')
+                            ->label('Спойлер')
+                            ->default(false),
+                    ])
+                    ->columnSpan(2),
             ]);
     }
 
@@ -81,7 +97,8 @@ class CommentResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('user.name')
                     ->label('Користувач')
@@ -91,61 +108,66 @@ class CommentResource extends Resource
                 TextColumn::make('commentable_type')
                     ->label('Тип')
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => substr($state, 24)),
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        Anime::class => 'danger',
+                        Episode::class => 'warning',
+                        Comment::class=> 'primary',
+                        Selection::class=> 'success',
+                        default => 'muted',
+                    })
+                    ->formatStateUsing(function ($state) {
+                        return class_basename($state);
+                    }),
 
                 TextColumn::make('commentable_id')
-                    ->label('ID об’єкта')
-                    ->sortable(),
+                    ->label('Об’єкт')
+                    ->sortable()
+                    ->formatStateUsing(function ($state, $record) {
+                        $modelClass = $record->commentable_type;
+                        $modelInstance = $modelClass::find($state);
+                        if ($modelInstance) {
+                            if ($modelClass === Comment::class) {
+                                return $modelInstance->body;
+                            }
+                            return $modelInstance->name;
+                        }
+                        return 'N/A';
+                    })
+                    ->searchable()
+                    ->limit(25),
 
                 TextColumn::make('body')
                     ->label('Текст коментаря')
                     ->sortable()
-                    ->limit(28),
+                    ->searchable()
+                    ->limit(50),
+
+                IconColumn::make('is_spoiler')
+                    ->label('Спойлер')
+                    ->boolean(),
 
             ])
             ->filters([
-                //
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('primary'),
-
-                ViewAction::make()
-                    ->label('View')
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn (Model $record) => route('anime.show', $record)), // Example of a custom route
-
-                // Додавання дії "Видалити"
-                DeleteAction::make()
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->modalHeading('Are you sure you want to delete this record?') // Заголовок модального вікна
-                    ->modalSubheading('This action cannot be undone.') // Текст у модальному вікні
-                    ->action(fn (Model $record) => $record->delete()),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                // Масова дія для видалення, яка також підтверджує перед виконанням
-                DeleteBulkAction::make()
-                    ->label('Delete Selected')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->before(fn (array $records) => // Логіка перед видаленням
-                    collect($records)->filter(fn ($record) => $record->is_published)
-                        ->each(fn ($record) => $record->addError('id', 'Cannot delete published records.'))
-                    ),
+                DeleteBulkAction::make(),
             ])
-            ->defaultSort('created_at', 'desc'); // Default sort by creation date, descending
+            ->defaultSort('created_at', 'desc');
 
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            LikesRelationManager::class,
+            ReportsRelationManager::class,
+            ChildrenRelationManager::class,
         ];
     }
 

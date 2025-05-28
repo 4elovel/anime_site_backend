@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\CommentLike;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\CommentLike;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<CommentLike>

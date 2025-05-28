@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\User;
 
 class CommentSeeder extends Seeder
 {
@@ -18,6 +18,7 @@ class CommentSeeder extends Seeder
         $episodes = Episode::all();
         $selections = Selection::all();
         $users = User::all();
+        $comments = Comment::all();
 
         // Додаємо коментарі до фільмів
         foreach ($movies as $movie) {
@@ -46,14 +47,12 @@ class CommentSeeder extends Seeder
                 ->create();
         }
 
-        // Додаємо вкладені коментарі до деяких з уже створених
-        $parentComments = Comment::roots()->inRandomOrder()->take(10)->get();
 
-        foreach ($parentComments as $parent) {
+        foreach ($comments as $comment) {
             Comment::factory()
-                ->replyTo($parent)
+                ->forCommentable($comment)
                 ->forUser($users->random())
-                ->count(rand(1, 3)) // Випадкова кількість відповідей
+                ->count(rand(1, 5)) // Випадкова кількість коментарів
                 ->create();
         }
     }

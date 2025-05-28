@@ -1,18 +1,20 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources;
+namespace AnimeSite\Filament\Resources;
 
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
-use Liamtseva\Cinema\Filament\Resources\RatingResource\Pages;
-use Liamtseva\Cinema\Filament\Resources\RatingResource\RelationManagers;
+use AnimeSite\Filament\Resources\RatingResource\Pages;
+use AnimeSite\Filament\Resources\RatingResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -20,9 +22,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Rating;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Rating;
+use AnimeSite\Models\User;
 
 class RatingResource extends Resource
 {
@@ -31,32 +33,44 @@ class RatingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-star';
 
     protected static ?string $navigationGroup = 'Взаємодія';
+    protected static ?string $pluralModelLabel = 'Оцінки';
+    protected static ?string $modelLabel = 'Оцінка';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('user_id')
-                    ->label('Користувач')
-                    ->options(User::query()->pluck('name', 'id'))
-                    ->required(),
+                Section::make()
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Користувач')
+                            ->searchable()
+                            ->options(User::query()->pluck('name', 'id'))
+                            ->required(),
+                    ])
+                    ->columnSpan(2),
 
-                // Вибір аніме
-                Select::make('anime_id')
-                    ->label('Аніме')
-                    ->options(Anime::query()->pluck('name', 'id'))
-                    ->required(),
+                Section::make()
+                    ->schema([
+                        Select::make('anime_id')
+                            ->label('Аніме')
+                            ->searchable()
+                            ->options(Anime::query()->pluck('name', 'id'))
+                            ->required(),
+                    ])
+                    ->columnSpan(2),
 
-                // Оцінка
-                Select::make('number')
-                    ->label('Оцінка')
-                    ->options(range(1, 10)) // Оцінка від 1 до 10
-                    ->required(),
-
-                // Відгук
-                TextArea::make('review')
-                    ->label('Відгук')
-                    ->nullable(),
+                Section::make()
+                    ->schema([
+                        Select::make('number')
+                            ->label('Оцінка')
+                            ->options(range(1, 10))
+                            ->required(),
+                        TextArea::make('review')
+                            ->label('Відгук')
+                            ->nullable(),
+                    ])
+                    ->columnSpan(3),
             ]);
     }
 
@@ -64,9 +78,11 @@ class RatingResource extends Resource
     {
         return $table
             ->columns([
+
                 TextColumn::make('id')
                     ->label('ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('user.name')
                     ->label('Користувач')
@@ -80,11 +96,12 @@ class RatingResource extends Resource
                 TextColumn::make('number')
                     ->label('Оцінка')
                     ->sortable()
+                    ->badge()
                     ->color(fn ($state) => match ($state) {
-                        1, 2, 3 => 'danger', // Червоний для низьких оцінок
-                        4, 5, 6 => 'warning', // Жовтий для середніх оцінок
-                        7, 8, 9, 10 => 'success', // Зелений для високих оцінок
-                        default => 'muted', // Сірий для інших випадків
+                        1, 2, 3 => 'danger',
+                        4, 5, 6 => 'warning',
+                        7, 8, 9, 10 => 'success',
+                        default => 'muted',
                     }),
 
                 TextColumn::make('review')
@@ -95,35 +112,20 @@ class RatingResource extends Resource
                 SelectFilter::make('anime_id')
                     ->label('Аніме')
                     ->options(function () {
-                        // Повертає список всіх аніме, де 'id' є значенням, а 'name' — назвою
                         return Anime::pluck('name', 'id');
                     })
-                    ->searchable() // Додає можливість пошуку
+                    ->searchable()
                     ->placeholder('Вибрати аніме'),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('primary'),
-
-                // Додавання дії "Видалити"
-                DeleteAction::make()
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->modalHeading('Are you sure you want to delete this record?') // Заголовок модального вікна
-                    ->modalSubheading('This action cannot be undone.') // Текст у модальному вікні
-                    ->action(fn (Model $record) => $record->delete()),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                // Масова дія для видалення, яка також підтверджує перед виконанням
-                DeleteBulkAction::make()
-                    ->label('Delete Selected')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger'),
+                DeleteBulkAction::make(),
             ])
-            ->defaultSort('created_at', 'desc'); // Default sort by creation date, descending
+            ->defaultSort('created_at', 'desc');
 
     }
 

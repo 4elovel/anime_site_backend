@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Liamtseva\Cinema\Enums\Gender;
-use Liamtseva\Cinema\Enums\PersonType;
+use AnimeSite\Enums\Gender;
+use AnimeSite\Enums\PersonType;
 
 return new class extends Migration
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\User;
 
 class CommentPolicy
 {
@@ -36,7 +36,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
-        return true;
+        return $user->id === $comment->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        return true;
+        return $user->id === $comment->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class CommentPolicy
      */
     public function forceDelete(User $user, Comment $comment): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\User;
-use Liamtseva\Cinema\Models\WatchHistory;
+use AnimeSite\Models\User;
+use AnimeSite\Models\WatchHistory;
 
 class WatchHistoryPolicy
 {
@@ -36,7 +36,7 @@ class WatchHistoryPolicy
      */
     public function update(User $user, WatchHistory $watchHistory): bool
     {
-        return true;
+        return $user->id === $watchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class WatchHistoryPolicy
      */
     public function delete(User $user, WatchHistory $watchHistory): bool
     {
-        return true;
+        return $user->id === $watchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class WatchHistoryPolicy
      */
     public function restore(User $user, WatchHistory $watchHistory): bool
     {
-        return true;
+        return $user->id === $watchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class WatchHistoryPolicy
      */
     public function forceDelete(User $user, WatchHistory $watchHistory): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

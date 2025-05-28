@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\CommentReport;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\CommentReport;
+use AnimeSite\Models\User;
 
 class CommentReportPolicy
 {
@@ -12,7 +12,7 @@ class CommentReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return  $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -20,7 +20,7 @@ class CommentReportPolicy
      */
     public function view(User $user, CommentReport $commentReport): bool
     {
-        return true;
+        return  $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +36,7 @@ class CommentReportPolicy
      */
     public function update(User $user, CommentReport $commentReport): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class CommentReportPolicy
      */
     public function delete(User $user, CommentReport $commentReport): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class CommentReportPolicy
      */
     public function restore(User $user, CommentReport $commentReport): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class CommentReportPolicy
      */
     public function forceDelete(User $user, CommentReport $commentReport): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

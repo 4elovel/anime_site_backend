@@ -7,10 +7,12 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.2",
+        "knuckleswtf/scribe": "^5.2",
         "laravel/framework": "^11.9",
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "lorisleiva/laravel-actions": "^2.9",
         "livewire/livewire": "^3.0",
         "valentin-morice/filament-json-column": "^1.5"
     },
@@ -21,12 +23,13 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
-        "pestphp/pest": "^3.7",
-        "pestphp/pest-plugin-laravel": "^3.0"
+        "pestphp/pest": "^3.5",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "wulfheart/laravel-actions-ide-helper": "^0.10.0"
     },
     "autoload": {
         "psr-4": {
-            "Liamtseva\\Cinema\\": "app/",
+            "AnimeSite\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Achievement;
+use AnimeSite\Models\Achievement;
 
 class AchievementSeeder extends Seeder
 {

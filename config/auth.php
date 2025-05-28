@@ -66,7 +66,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', Liamtseva\Cinema\Models\User::class),
+            'model' => env('AUTH_MODEL', AnimeSite\Models\User::class),
         ],
 
         // 'users' => [

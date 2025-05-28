@@ -1,24 +1,26 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\User;
 
 class PersonPolicy
 {
     /**
      * Determine whether the user can view any models.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
     /**
      * Determine whether the user can view the model.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function view(User $user, Person $person): bool
+    public function view(?User $user, Person $person): bool
     {
         return true;
     }
@@ -28,7 +30,7 @@ class PersonPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +38,7 @@ class PersonPolicy
      */
     public function update(User $user, Person $person): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +46,7 @@ class PersonPolicy
      */
     public function delete(User $user, Person $person): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,14 +54,14 @@ class PersonPolicy
      */
     public function restore(User $user, Person $person): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Person $person): bool
+    public function forceDelete(User $user, Person $persoe): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

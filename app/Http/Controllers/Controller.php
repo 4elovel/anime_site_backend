@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Http\Controllers;
+namespace AnimeSite\Http\Controllers;
 
-abstract class Controller
+class Controller
 {
-    //
+
 }

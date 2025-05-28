@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Models\SearchHistory;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\SearchHistory;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<SearchHistory>

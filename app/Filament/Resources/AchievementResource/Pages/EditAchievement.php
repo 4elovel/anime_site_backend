@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources\AchievementResource\Pages;
+namespace AnimeSite\Filament\Resources\AchievementResource\Pages;
 
-use Liamtseva\Cinema\Filament\Resources\AchievementResource;
+use AnimeSite\Filament\Resources\AchievementResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

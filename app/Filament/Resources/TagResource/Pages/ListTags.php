@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources\TagResource\Pages;
+namespace AnimeSite\Filament\Resources\TagResource\Pages;
 
-use Liamtseva\Cinema\Filament\Resources\TagResource;
+use AnimeSite\Filament\Resources\TagResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

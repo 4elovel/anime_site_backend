@@ -1,13 +1,13 @@
 <?php
 
-namespace Liamtseva\Cinema\Casts;
+namespace AnimeSite\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Liamtseva\Cinema\Enums\VideoPlayerName;
-use Liamtseva\Cinema\Enums\VideoQuality;
-use Liamtseva\Cinema\ValueObjects\VideoPlayer;
+use AnimeSite\Enums\VideoPlayerName;
+use AnimeSite\Enums\VideoQuality;
+use AnimeSite\ValueObjects\VideoPlayer;
 
 class VideoPlayersCast implements CastsAttributes
 {

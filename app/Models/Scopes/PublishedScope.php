@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Models\Scopes;
+namespace AnimeSite\Models\Scopes;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

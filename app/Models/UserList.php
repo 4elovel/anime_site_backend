@@ -1,15 +1,19 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
 use Database\Factories\UserListFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Liamtseva\Cinema\Enums\UserListType;
+use AnimeSite\Builders\UserListBuilder;
+use AnimeSite\Enums\UserListType;
 
 /**
  * @mixin IdeHelperUserList
@@ -28,24 +32,13 @@ class UserList extends Model
         return $this->morphTo();
     }
 
-
-    public function scopeOfType(Builder $query, UserListType $type): Builder
+    public function user(): BelongsTo
     {
-        return $query->where('type', $type->value);
+        return $this->BelongsTo(User::class);
     }
 
-    public function scopeForUser(Builder $query,
-        string $userId,
-        ?string $listableClass = null,
-        ?UserListType $userListType = null): Builder
+    public function newEloquentBuilder($query): UserListBuilder
     {
-        return $query->where('user_id', $userId)
-            ->when($listableClass, function ($query) use ($listableClass) {
-                $query->where('listable_type', $listableClass);
-            })
-            ->when($userListType, function ($query) use ($userListType) {
-                $query->where('type', $userListType->value);
-            });
+        return new UserListBuilder($query);
     }
-
 }

@@ -1,24 +1,26 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Tag;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Tag;
+use AnimeSite\Models\User;
 
 class TagPolicy
 {
     /**
      * Determine whether the user can view any models.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
     /**
      * Determine whether the user can view the model.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function view(User $user, Tag $tag): bool
+    public function view(?User $user, Tag $tag): bool
     {
         return true;
     }
@@ -28,7 +30,7 @@ class TagPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +38,7 @@ class TagPolicy
      */
     public function update(User $user, Tag $tag): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +46,7 @@ class TagPolicy
      */
     public function delete(User $user, Tag $tag): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +54,7 @@ class TagPolicy
      */
     public function restore(User $user, Tag $tag): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +62,6 @@ class TagPolicy
      */
     public function forceDelete(User $user, Tag $tag): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

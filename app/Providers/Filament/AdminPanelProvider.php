@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Providers\Filament;
+namespace AnimeSite\Providers\Filament;
 
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -30,12 +30,12 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'Liamtseva\\Cinema\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'Liamtseva\\Cinema\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'AnimeSite\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'AnimeSite\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'Liamtseva\\Cinema\\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'AnimeSite\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,

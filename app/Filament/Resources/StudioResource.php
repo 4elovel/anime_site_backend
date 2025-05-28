@@ -1,12 +1,13 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources;
+namespace AnimeSite\Filament\Resources;
 
 use Closure;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -23,8 +24,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Filament\Resources\StudioResource\Pages;
-use Liamtseva\Cinema\Models\Studio;
+use AnimeSite\Filament\Resources\StudioResource\Pages;
+use AnimeSite\Filament\Resources\StudioResource\RelationManagers\AnimesRelationManager;
+use AnimeSite\Models\Studio;
+use AnimeSite\Models\Tag;
 
 class StudioResource extends Resource
 {
@@ -33,107 +36,151 @@ class StudioResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?string $navigationGroup = 'Контент';
+    protected static ?string $pluralModelLabel = 'Студії';
+    protected static ?string $modelLabel = 'Студія';
 
     public static function form(Form $form): Form
     {
-        return $form->schema([
-            Group::make()
-                ->schema([
-            TextInput::make('name')
-                ->required()
-                ->maxLength(128)
-                ->live(onBlur: true)
-                ->afterStateUpdated(function (Set $set, $state) {
-                    $set('slug', Str::slug($state));
-                }),
-            TextInput::make('slug')
-                ->required()
-                ->maxLength(128)
-                ->unique(ignoreRecord: true),
+        return $form
+            ->schema([
 
-            Section::make('Зображення')
+            Section::make()
                 ->schema([
-                    FileUpload::make('image') // Поле для завантаження файлів
-                    ->label('Завантажити файл') // Підпис для поля
-                    ->image() // Якщо ви хочете, щоб завантажувались тільки зображення
-                    ->required() // Якщо це поле обов'язкове
-                    ->disk('public') // Диск для збереження файлів (визначається у config/filesystems.php)
-                    ->directory('uploads') // Каталог для збереження файлів
-                    ->maxSize(10240) // Максимальний розмір файлу в КБ (наприклад, 10 МБ)
-                    ->enableDownload(),
-                ])->columnSpan(1),
+                    // Name Input
+                    TextInput::make('name')
+                        ->label('Ім\'я')
+                        ->required()
+                        ->maxLength(128)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (string $operation, string $state, Set $set) {
+                            if ($operation == 'edit' || empty($state)) {
+                                return;
+                            }
+                            $set('slug', Studio::generateSlug($state));
+                            $set('meta_title', Tag::makeMetaTitle($state));
+                        }),
 
-            TextInput::make('description')
-                ->required()
-                ->maxLength(512),
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->maxLength(128)
+                        ->unique(ignoreRecord: true),
                 ])
                 ->columnSpan(2)
                 ->columns(2),
 
-            Section::make('Meta')
+            // Image Section
+            Section::make()
                 ->schema([
-            TextInput::make('meta_title')
-                ->maxLength(128),
-            TextInput::make('meta_description')
-                ->maxLength(376),
-            TextInput::make('meta_image')
-                ->label('Meta image URL')
-                ->url()
-                ->maxLength(2048),
-                    ])->columnSpan(1)
-                ->columns(1),
+                    // Image Upload
+                    FileUpload::make('image')
+                        ->label('Зображення')
+                        ->image()
+                        ->directory('public/studio')
+                        ->maxSize(10240)
+                        ->enableDownload()
+                        ->afterStateUpdated(function ($state, Set $set) {
+                            if (!empty($state)) {
+                                $set('meta_image', $state);
+                            }
+                        }),
+                ])
+                ->columnSpan(2),
 
-            ])->columns(3);
+            // Description Section
+            Section::make()
+                ->schema([
+                    // Description Input with RichEditor
+                    RichEditor::make('description')
+                        ->label('Опис')
+                        ->maxLength(512)
+                        ->toolbarButtons([
+                            'bold', 'italic', 'underline', 'strike',
+                            'h2', 'h3', 'h4', 'bulletList', 'orderedList',
+                            'link', 'blockquote', 'codeBlock', 'undo', 'redo',
+                        ])
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (string $operation, string $state, Set $set) {
+                            if ($operation == 'edit' || empty($state)) {
+                                return;
+                            }
+                            $plainText = strip_tags($state);
+                            $set('meta_description', Studio::makeMetaDescription($plainText));
+                        }),
+                ])
+                ->columnSpan(3),
+
+            // SEO Settings Section
+            Section::make(__('SEO Налаштування'))
+                ->collapsible()
+                ->collapsed()
+                ->schema([
+                    // Meta Title
+                    TextInput::make('meta_title')
+                        ->maxLength(128)
+                        ->label(__('Meta заголовок')),
+
+                    // Meta Description
+                    TextInput::make('meta_description')
+                        ->maxLength(376)
+                        ->label(__('Meta опис')),
+
+                    // Meta Image
+                    FileUpload::make('meta_image')
+                        ->image()
+                        ->directory('public/meta')
+                        ->label(__('Meta зображення')),
+                ])
+                ->columnSpan(3)
+        ]);
+
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
+        return $table
+            ->columns([
             TextColumn::make('id')
                 ->label('ID')
-                ->searchable(),
+                ->sortable()
+                ->searchable()
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('name')
+                ->label('Назва')
                 ->searchable()
                 ->sortable(),
-            ImageColumn::make('image'),
+            TextColumn::make('description')
+                ->label(__('Опис'))
+                ->searchable()
+                ->limit(80),
+
+            TextColumn::make('slug')
+                ->label(('Slug'))
+                ->toggleable(isToggledHiddenByDefault: true),
+            ImageColumn::make('image')
+                ->label('Зображення')
+                ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('meta_title')
+                ->label(('Meta загаловок'))
+                ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('meta_description')
+                ->label(__('Meta опис'))
+                ->toggleable(isToggledHiddenByDefault: true),
+            ImageColumn::make('meta_image')
+                ->label('Meta зображення')
+                ->toggleable(isToggledHiddenByDefault: true),
         ])
             ->filters([
                 //
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('primary'),
-
-                ViewAction::make()
-                    ->label('View')
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn (Model $record) => route('anime.show', $record)), // Example of a custom route
-
-                // Додавання дії "Видалити"
-                DeleteAction::make()
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->modalHeading('Are you sure you want to delete this record?') // Заголовок модального вікна
-                    ->modalSubheading('This action cannot be undone.') // Текст у модальному вікні
-                    ->action(fn (Model $record) => $record->delete()),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
 
             ])
             ->bulkActions([
-                DeleteBulkAction::make()
-                    ->label('Delete Selected')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->before(fn (array $records) => // Логіка перед видаленням
-                    collect($records)->filter(fn ($record) => $record->is_published)
-                        ->each(fn ($record) => $record->addError('id', 'Cannot delete published records.'))
-                    ),
-                BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
 
@@ -142,7 +189,7 @@ class StudioResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AnimesRelationManager::class,
         ];
     }
 

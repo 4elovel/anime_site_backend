@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Enums\CommentReportType;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\CommentReport;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Enums\CommentReportType;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\CommentReport;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<CommentReport>

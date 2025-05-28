@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Rating;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Rating;
+use AnimeSite\Models\User;
 
 class RatingPolicy
 {
@@ -36,7 +36,7 @@ class RatingPolicy
      */
     public function update(User $user, Rating $rating): bool
     {
-        return true;
+        return $user->id === $rating->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class RatingPolicy
      */
     public function delete(User $user, Rating $rating): bool
     {
-        return true;
+        return $user->id === $rating->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class RatingPolicy
      */
     public function restore(User $user, Rating $rating): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class RatingPolicy
      */
     public function forceDelete(User $user, Rating $rating): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

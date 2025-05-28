@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Rating;
+use AnimeSite\Models\Rating;
 
 class RatingSeeder extends Seeder
 {

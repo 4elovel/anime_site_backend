@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum RelatedType : string
 {

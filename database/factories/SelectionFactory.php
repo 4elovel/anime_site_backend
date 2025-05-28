@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<Selection>

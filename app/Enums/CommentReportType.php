@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum CommentReportType: string
 {
@@ -41,6 +41,21 @@ enum CommentReportType: string
             self::FORBIDDEN_UNNECESSARY_CONTENT => 'Заборонений / непотрібний контент',
             self::MEANINGLESS_EMPTY_TOPIC => 'Безглузда / порожня тема',
             self::DUPLICATE_TOPIC => 'Дублікат теми',
+        };
+    }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::INSULT => 'danger',
+            self::FLOOD_OFFTOP_MEANINGLESS => 'warning',
+            self::AD_SPAM => 'info',
+            self::SPOILER => 'primary',
+            self::PROVOCATION_CONFLICT => 'danger',
+            self::INAPPROPRIATE_LANGUAGE => 'danger',
+            self::FORBIDDEN_UNNECESSARY_CONTENT => 'info',
+            self::MEANINGLESS_EMPTY_TOPIC => 'info',
+            self::DUPLICATE_TOPIC => 'warning',
         };
     }
 }

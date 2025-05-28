@@ -5,11 +5,11 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Enums\Gender;
-use Liamtseva\Cinema\Enums\Role;
+use AnimeSite\Enums\Gender;
+use AnimeSite\Enums\Role;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Liamtseva\Cinema\Models\Achievement>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\AnimeSite\Models\Achievement>
  */
 class AchievementFactory extends Factory
 {

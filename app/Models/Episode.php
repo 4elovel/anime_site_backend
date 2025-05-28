@@ -1,7 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
+use AnimeSite\Builders\EpisodeBuilder;
 use Database\Factories\EpisodeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
@@ -12,10 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
-use Liamtseva\Cinema\Casts\VideoPlayersCast;
-use Liamtseva\Cinema\Models\Traits\HasSeo;
-use Liamtseva\Cinema\ValueObjects\VideoPlayer;
+use AnimeSite\Casts\VideoPlayersCast;
+use AnimeSite\Models\Traits\HasFiles;
+use AnimeSite\Models\Traits\HasSeo;
+use AnimeSite\ValueObjects\VideoPlayer;
 
 /**
  * @mixin IdeHelperEpisode
@@ -23,30 +26,29 @@ use Liamtseva\Cinema\ValueObjects\VideoPlayer;
 class Episode extends Model
 {
     /** @use HasFactory<EpisodeFactory> */
-    use HasFactory, HasSeo, HasUlids;
+    use HasFactory, HasSeo, HasUlids, HasFiles;
 
-    public function scopeFor(Builder $query, string $animeId): Builder
-    {
-        return $query->where('anime_id', $animeId);
-    }
+    protected $casts = [
+        'pictures' => 'array',
+        'video_players' => 'array',
+        'air_date' => 'date',
+    ];
 
-    public function scopeAiredAfter(Builder $query, Carbon $date): Builder
-    {
-        return $query->where('air_date', '>=', $date);
-    }
+
 
     public function anime(): BelongsTo
     {
         return $this->belongsTo(Anime::class);
     }
 
-    public function videoPlayers(): HasMany
-    {
-        return $this->hasMany(VideoPlayer::class);
-    }
     public function userLists(): MorphMany
     {
         return $this->morphMany(UserList::class, 'listable');
+    }
+
+    public function selections(): MorphToMany
+    {
+        return $this->morphToMany(Selection::class, 'selectionable', 'selectionables');
     }
 
     public function comments(): MorphMany
@@ -54,29 +56,11 @@ class Episode extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    protected function casts(): array
-    {
-        return [
-            'pictures' => AsCollection::class,
-            'video_players' => VideoPlayersCast::class,
-            'air_date' => 'date',
-        ];
-    }
-
     protected function pictureUrl(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => $this->pictures->isNotEmpty()
                 ? asset("storage/{$this->pictures->first()}")
-                : null
-        );
-    }
-
-    protected function picturesUrl(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->pictures->isNotEmpty()
-                ? $this->pictures->map(fn ($picture) => asset("storage/{$picture}"))
                 : null
         );
     }
@@ -99,5 +83,8 @@ class Episode extends Model
         return implode(' ', $formatted);
     }
 
-
+    public function newEloquentBuilder($query): EpisodeBuilder
+    {
+        return new EpisodeBuilder($query);
+    }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Liamtseva\Cinema\Casts;
+namespace AnimeSite\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Liamtseva\Cinema\Enums\ApiSourceName;
-use Liamtseva\Cinema\ValueObjects\ApiSource;
+use AnimeSite\Enums\ApiSourceName;
+use AnimeSite\ValueObjects\ApiSource;
 
 class ApiSourcesCast implements CastsAttributes
 {
@@ -33,13 +33,14 @@ class ApiSourcesCast implements CastsAttributes
         return json_encode($value->map(function ($as) {
             if (is_array($as)) {
                 // Конвертуємо масив у ApiSource
-                $as = new ApiSource(ApiSourceName::from($as['source']), $as['id']);
+                $as = new ApiSource(
+                    name: ApiSourceName::from($as['name'] ?? $as['source']),
+                    id: $as['id']
+                );
             }
 
-            return [
-                'name' => $as->name->value,
-                'id' => $as->id,
-            ];
+            // Using JsonSerializable interface
+            return $as;
         })->toArray());
     }
 }

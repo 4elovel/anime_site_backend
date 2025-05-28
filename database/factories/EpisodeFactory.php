@@ -4,13 +4,14 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
-use Liamtseva\Cinema\Enums\Kind;
-use Liamtseva\Cinema\Enums\LanguageCode;
-use Liamtseva\Cinema\Enums\VideoPlayerName;
-use Liamtseva\Cinema\Enums\VideoQuality;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\ValueObjects\VideoPlayer;
+use AnimeSite\Enums\Country;
+use AnimeSite\Enums\Kind;
+use AnimeSite\Enums\LanguageCode;
+use AnimeSite\Enums\VideoPlayerName;
+use AnimeSite\Enums\VideoQuality;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
+use AnimeSite\ValueObjects\VideoPlayer;
 
 /**
  * @extends Factory<Episode>

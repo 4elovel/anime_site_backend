@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Rating;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Rating;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<Rating>

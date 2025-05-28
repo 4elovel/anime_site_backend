@@ -4,7 +4,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\User;
 
 class UserTest extends TestCase
 {

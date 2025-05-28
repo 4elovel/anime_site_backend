@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Studio;
+use AnimeSite\Models\Studio;
 
 class StudioSeeder extends Seeder
 {

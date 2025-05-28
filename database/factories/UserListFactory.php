@@ -3,14 +3,14 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Enums\UserListType;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\Tag;
-use Liamtseva\Cinema\Models\User;
-use Liamtseva\Cinema\Models\UserList;
+use AnimeSite\Enums\UserListType;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\Tag;
+use AnimeSite\Models\User;
+use AnimeSite\Models\UserList;
 
 /**
  * @extends Factory<UserList>

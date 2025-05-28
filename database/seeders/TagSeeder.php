@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Tag;
+use AnimeSite\Models\Tag;
 
 class TagSeeder extends Seeder
 {

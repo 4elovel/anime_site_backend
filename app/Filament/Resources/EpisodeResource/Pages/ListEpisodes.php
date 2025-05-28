@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources\EpisodeResource\Pages;
+namespace AnimeSite\Filament\Resources\EpisodeResource\Pages;
 
-use Liamtseva\Cinema\Filament\Resources\EpisodeResource;
+use AnimeSite\Filament\Resources\EpisodeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

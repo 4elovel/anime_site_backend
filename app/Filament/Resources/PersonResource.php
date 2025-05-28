@@ -1,11 +1,12 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources;
+namespace AnimeSite\Filament\Resources;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\MultiSelect;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,12 +26,14 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Enums\Gender;
-use Liamtseva\Cinema\Enums\PersonType;
-use Liamtseva\Cinema\Filament\Resources\PersonResource\Pages;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Studio;
+use AnimeSite\Enums\Gender;
+use AnimeSite\Enums\PersonType;
+use AnimeSite\Filament\Resources\PersonResource\Pages;
+use AnimeSite\Filament\Resources\PersonResource\RelationManagers\AnimesRelationManager;
+use AnimeSite\Filament\Resources\PersonResource\RelationManagers\TagsRelationManager;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Studio;
 
 class PersonResource extends Resource
 {
@@ -40,90 +43,129 @@ class PersonResource extends Resource
 
     protected static ?string $navigationGroup = 'Контент';
 
+    protected static ?string $pluralModelLabel = 'Люди';
+    protected static ?string $modelLabel = 'Людина';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Group::make()
+
+                // Name Section
+                Section::make()
                     ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(128)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Set $set, $state) {
-                        $set('slug', Str::slug($state));
-                    }),
+                        TextInput::make('name')
+                            ->label('Ім\'я')
+                            ->required()
+                            ->maxLength(128)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (string $operation, string $state, Set $set) {
+                                if ($operation == 'edit' || empty($state)) {
+                                    return;
+                                }
+                                $set('slug', Person::generateSlug($state));
+                                $set('meta_title', Person::makeMetaTitle($state));
+                            }),
 
-                TextInput::make('slug')
-                    ->required()
-                    ->maxLength(128)
-                    ->unique(ignoreRecord: true),
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->maxLength(128)
+                            ->unique(ignoreRecord: true),
 
-                TextInput::make('original_name')
-                    ->label('Original name')
-                    ->maxLength(128),
-
-
-                TextInput::make('description')
-                    ->maxLength(512),
+                        TextInput::make('original_name')
+                            ->label('Справжнє ім\'я')
+                            ->maxLength(128)->columnSpan(2),
                     ])
                     ->columnSpan(2)
                     ->columns(2),
 
-                        Section::make('Зображення')
-                            ->schema([
-                                FileUpload::make('image') // Поле для завантаження файлів
-                                ->label('Завантажити файл') // Підпис для поля
-                                ->image() // Якщо ви хочете, щоб завантажувались тільки зображення
-                                ->disk('public') // Диск для збереження файлів (визначається у config/filesystems.php)
-                                ->directory('uploads') // Каталог для збереження файлів
-                                ->maxSize(10240) // Максимальний розмір файлу в КБ (наприклад, 10 МБ)
-                                ->enableDownload(),
-                            ])->columnSpan(1),
-
-
-                        Group::make()
-                            ->schema([
-                                DatePicker::make('birthday')
-                                    ->label('Birthday')
-                                    ->nullable(),
-
-                                TextInput::make('birthplace')
-                                    ->maxLength(248)
-                                    ->nullable(),
-
-                                Select::make('type')
-                                    ->label('Type')
-                                    ->options(PersonType::options())
-                                    ->required(),
-
-
-                                Select::make('gender')
-                                    ->label('Gender')
-                                    ->options(Gender::labels())
-                                    ->nullable(),
-                            ])
-                            ->columnSpan(2)
-                            ->columns(2),
-
-
-                Section::make('Meta')
+                // Description Section
+                Section::make()
                     ->schema([
-                TextInput::make('meta_title')
-                    ->maxLength(128),
-
-                TextInput::make('meta_description')
-                    ->maxLength(376),
-
-                TextInput::make('meta_image')
-                    ->label('Meta image URL')
-                    ->url()
-                    ->columnSpan(2),
+                        RichEditor::make('description')
+                            ->label('Опис')
+                            ->maxLength(512)
+                            ->toolbarButtons([
+                                'bold', 'italic', 'underline', 'strike',
+                                'h2', 'h3', 'h4', 'bulletList', 'orderedList',
+                                'link', 'blockquote', 'codeBlock', 'undo', 'redo',
+                            ])
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (string $operation, string $state, Set $set) {
+                                if ($operation == 'edit' || empty($state)) {
+                                    return;
+                                }
+                                $plainText = strip_tags($state);
+                                $set('meta_description', Person::makeMetaDescription($plainText));
+                            }),
                     ])
-                    ->columnSpan(1)
-                    ->columns(1),
-            ])
-            ->columns(3);
+                    ->columnSpan(2),
+
+                // Image Section
+                Section::make()
+                    ->schema([
+                        FileUpload::make('image')
+                            ->label('Зображення')
+                            ->image()
+                            ->directory('public/people')
+                            ->maxSize(10240)
+                            ->enableDownload()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if (!empty($state)) {
+                                    // Automatically set the meta_image to the same value as the uploaded image
+                                    $set('meta_image', $state);
+                                }
+                            }),
+                    ])
+                    ->columnSpan(2),
+
+                // Additional Information Section
+                Section::make()
+                    ->schema([
+                        DatePicker::make('birthday')
+                            ->label('Дата народження')
+                            ->nullable(),
+
+                        TextInput::make('birthplace')
+                            ->label('Місце народження')
+                            ->maxLength(248)
+                            ->nullable(),
+
+                        Select::make('type')
+                            ->label('Тип')
+                            ->options(PersonType::options())
+                            ->required(),
+
+                        Select::make('gender')
+                            ->label('Стать')
+                            ->options(Gender::labels())
+                            ->nullable(),
+                    ])
+                    ->columnSpan(2)
+                    ->columns(2),
+
+                // SEO Settings Section
+                Section::make(__('SEO Налаштування'))
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        TextInput::make('meta_title')
+                            ->maxLength(128)
+                            ->label(__('Meta заголовок')),
+
+                        TextInput::make('meta_description')
+                            ->maxLength(376)
+                            ->label(__('Meta опис')),
+
+                        FileUpload::make('meta_image')
+                            ->image()
+                            ->directory('public/meta')
+                            ->label(__('Meta зображення')),
+
+                    ]),
+            ]);
+
 
     }
 
@@ -134,92 +176,68 @@ class PersonResource extends Resource
                 TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Ім\'я')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('original_name')
-                    ->label('Original Name')
+                    ->label('Справжнє ім\'я')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Type')
-                    ->formatStateUsing(fn ($state) => $state->name()) // Форматуємо для виведення імені
-                    ->color(fn ($state) => match ($state) {
-                        PersonType::CHARACTER => 'primary',           // Синій
-                        PersonType::DIRECTOR => 'success',            // Зелений
-                        PersonType::PRODUCER => 'info',               // Світло-блакитний
-                        PersonType::WRITER => 'warning',              // Жовтий
-                        PersonType::EDITOR => 'danger',               // Червоний
-                        PersonType::CINEMATOGRAPHER => 'muted',       // Сірий
-                        PersonType::COMPOSER => 'primary',            // Синій
-                        PersonType::ART_DIRECTOR => 'success',        // Зелений
-                        PersonType::SOUND_DESIGNER => 'info',         // Світло-блакитний
-                        PersonType::MAKEUP_ARTIST => 'secondary',     // Темно-сірий
-                        PersonType::VOICE_ACTOR => 'primary',         // Синій
-                        PersonType::STUNT_PERFORMER => 'warning',     // Жовтий
-                        PersonType::ASSISTANT_DIRECTOR => 'danger',   // Червоний
-                        PersonType::PRODUCER_ASSISTANT => 'muted',    // Сірий
-                        PersonType::SCRIPT_SUPERVISOR => 'info',      // Світло-блакитний
-                        PersonType::PRODUCTION_DESIGNER => 'success', // Зелений
-                        PersonType::VISUAL_EFFECTS_SUPERVISOR => 'warning', // Жовтий
-                        default => 'muted',                           // За замовчуванням — сірий
-                    }),
+                    ->label('Тип')
+                    ->formatStateUsing(fn ($state) => $state->name())
+                    ->badge()
+                    ->color(fn (PersonType $state): string => $state->getBadgeColor()),
                 TextColumn::make('gender')
-                    ->label('Gender')
-                    ->formatStateUsing(fn ($state) => $state->name()) // Форматуємо стан, щоб відобразити ім'я
-                    ->color(fn ($state) => match ($state) {
-                        Gender::MALE => 'primary',
-                        Gender::OTHER => 'info',
-                        Gender::FEMALE => 'danger',
-                        default => 'muted',
-                    }),
+                    ->label('Стать')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state->name())
+                    ->color(fn (Gender $state): string => $state->getBadgeColor()),
+
+                TextColumn::make('slug')
+                    ->label(('Slug'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('description')
+                    ->label(__('Опис'))
+                    ->limit(80)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('image')
+                    ->label('Зображення')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('birthday')
+                    ->label(__('Дата народження'))
+                    ->dateTime('d F Y р.')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('birthplace')
+                    ->label('Місце народження')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('meta_title')
+                    ->label(('Meta загаловок'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('meta_description')
+                    ->label(__('Meta опис'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('meta_image')
+                    ->label('Meta зображення')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('type')
-                    ->label('Type')
-                    ->options(PersonType::options())
-                    ->multiple(),
                 SelectFilter::make('gender')
                     ->label('Gender')
                     ->options(Gender::labels())
                     ->multiple(),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('primary'),
-
-                ViewAction::make()
-                    ->label('View')
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn (Model $record) => route('anime.show', $record)),
-
-                // Додавання дії "Видалити"
-                DeleteAction::make()
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->modalHeading('Are you sure you want to delete this record?')
-                    ->modalSubheading('This action cannot be undone.')
-                    ->action(fn (Model $record) => $record->delete()),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
 
             ])
             ->bulkActions([
-                DeleteBulkAction::make()
-                    ->label('Delete Selected')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->before(fn (array $records) => // Логіка перед видаленням
-                    collect($records)->filter(fn ($record) => $record->is_published)
-                        ->each(fn ($record) => $record->addError('id', 'Cannot delete published records.'))
-                    ),
-                BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
 
@@ -228,7 +246,8 @@ class PersonResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AnimesRelationManager::class,
+            TagsRelationManager::class,
         ];
     }
 

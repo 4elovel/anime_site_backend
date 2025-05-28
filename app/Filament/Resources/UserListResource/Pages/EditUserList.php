@@ -1,8 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources\UserListResource\Pages;
+namespace AnimeSite\Filament\Resources\UserListResource\Pages;
 
-use Liamtseva\Cinema\Filament\Resources\UserListResource;
+use AnimeSite\Filament\Resources\UserListResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

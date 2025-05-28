@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\User;
 
 class EpisodePolicy
 {
@@ -28,7 +28,7 @@ class EpisodePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +36,7 @@ class EpisodePolicy
      */
     public function update(User $user, Episode $episode): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class EpisodePolicy
      */
     public function delete(User $user, Episode $episode): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class EpisodePolicy
      */
     public function restore(User $user, Episode $episode): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class EpisodePolicy
      */
     public function forceDelete(User $user, Episode $episode): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

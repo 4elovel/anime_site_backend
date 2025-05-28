@@ -1,10 +1,10 @@
 <?php
 
-namespace Liamtseva\Cinema\ValueObjects;
+namespace AnimeSite\ValueObjects;
 
 
-use Liamtseva\Cinema\Enums\VideoPlayerName;
-use Liamtseva\Cinema\Enums\VideoQuality;
+use AnimeSite\Enums\VideoPlayerName;
+use AnimeSite\Enums\VideoQuality;
 
 
 class VideoPlayer

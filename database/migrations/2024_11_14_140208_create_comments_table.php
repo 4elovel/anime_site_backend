@@ -17,18 +17,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('comments', function (Blueprint $table) {
-            $table->foreignUlid('parent_id')->nullable()->constrained('comments')->cascadeOnDelete(); // FK на батьківський коментар для вкладених коментарів
-        });
     }
 
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->dropForeign(['parent_id']); // Видаляємо зовнішній ключ
-            $table->dropColumn('parent_id'); // Видаляємо сам стовпець
-        });
 
+        Schema::dropIfExists('comment_like');
+        Schema::dropIfExists('comment_report');
         Schema::dropIfExists('comments');
     }
 };

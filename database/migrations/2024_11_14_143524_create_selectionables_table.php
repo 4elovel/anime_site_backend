@@ -10,9 +10,8 @@ return new class extends Migration
     {
         Schema::create('selectionables', function (Blueprint $table) {
             $table->ulid('selection_id');
-            $table->ulidMorphs('selectionable'); // Це створює два поля: selectionable_id і selectionable_type
+            $table->ulidMorphs('selectionable');
             $table->timestamps();
-
             $table->primary(['selection_id', 'selectionable_id', 'selectionable_type']); // Комбінація полів для унікальності
         });
     }

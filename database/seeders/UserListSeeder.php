@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Enums\UserListType;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Tag;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Enums\UserListType;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Tag;
+use AnimeSite\Models\User;
 
 class UserListSeeder extends Seeder
 {

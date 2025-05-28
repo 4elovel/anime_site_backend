@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
 use Database\Factories\RatingFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use AnimeSite\Builders\RatingBuilder;
 
 /**
  * @mixin IdeHelperRating
@@ -23,7 +24,6 @@ class Rating extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Відношення з фільмом
     public function anime(): BelongsTo
     {
         return $this->belongsTo(Anime::class);
@@ -37,18 +37,8 @@ class Rating extends Model
         );
     }
 
-    public function scopeForUser(Builder $query, string $userId): Builder
+    public function newEloquentBuilder($query): RatingBuilder
     {
-        return $query->where('user_id', $userId);
-    }
-
-    public function scopeForAnime(Builder $query, string $animeId): Builder
-    {
-        return $query->where('anime_id', $animeId);
-    }
-
-    public function scopeBetweenRatings(Builder $query, int $minRating, int $maxRating): Builder
-    {
-        return $query->whereBetween('number', [$minRating, $maxRating]);
+        return new RatingBuilder($query);
     }
 }

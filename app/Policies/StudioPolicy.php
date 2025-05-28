@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\Studio;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Studio;
+use AnimeSite\Models\User;
 
 class StudioPolicy
 {
@@ -18,16 +18,18 @@ class StudioPolicy
 
     /**
      * Determine whether the user can view any models.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
     /**
      * Determine whether the user can view the model.
+     * Параметр $user може бути null для неавторизованих користувачів
      */
-    public function view(User $user, Studio $studio): bool
+    public function view(?User $user, Studio $studio): bool
     {
         return true;
     }
@@ -37,7 +39,7 @@ class StudioPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -45,7 +47,7 @@ class StudioPolicy
      */
     public function update(User $user, Studio $studio): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -53,7 +55,7 @@ class StudioPolicy
      */
     public function delete(User $user, Studio $studio): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -61,14 +63,14 @@ class StudioPolicy
      */
     public function restore(User $user, Studio $studio): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Studio $studio): bool
+    public function forceDelete(User $user,Studio $studio): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

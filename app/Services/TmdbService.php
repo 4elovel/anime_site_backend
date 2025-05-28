@@ -1,12 +1,13 @@
 <?php
-namespace Liamtseva\Cinema\Services;
 
-use Illuminate\Support\Facades\Http;
-use Liamtseva\Cinema\Enums\Kind;
-use Liamtseva\Cinema\Enums\Status;
-use Liamtseva\Cinema\Enums\ApiSourceName;
-use Liamtseva\Cinema\Enums\RestrictedRating;
+namespace AnimeSite\Services;
+
+use AnimeSite\Enums\ApiSourceName;
+use AnimeSite\Enums\Kind;
+use AnimeSite\Enums\RestrictedRating;
+use AnimeSite\Enums\Status;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class TmdbService
 {

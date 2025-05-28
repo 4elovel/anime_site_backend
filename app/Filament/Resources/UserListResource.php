@@ -1,9 +1,11 @@
 <?php
 
-namespace Liamtseva\Cinema\Filament\Resources;
+namespace AnimeSite\Filament\Resources;
 
+use Filament\Tables\Actions\ViewAction;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -11,9 +13,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
-use Liamtseva\Cinema\Enums\UserListType;
-use Liamtseva\Cinema\Filament\Resources\UserListResource\Pages;
-use Liamtseva\Cinema\Filament\Resources\UserListResource\RelationManagers;
+use AnimeSite\Enums\UserListType;
+use AnimeSite\Filament\Resources\UserListResource\Pages;
+use AnimeSite\Filament\Resources\UserListResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -22,13 +24,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\Tag;
-use Liamtseva\Cinema\Models\User;
-use Liamtseva\Cinema\Models\UserList;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\Tag;
+use AnimeSite\Models\User;
+use AnimeSite\Models\UserList;
 
 class UserListResource extends Resource
 {
@@ -36,38 +39,53 @@ class UserListResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Взаємодія';
+    protected static ?string $pluralModelLabel = 'Списки користувачів';
+    protected static ?string $modelLabel = 'Список користувача';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('user_id')
-                    ->label('Користувач')
-                    ->options(User::query()->pluck('name', 'id'))
-                    ->required()
-                    ->searchable(), // Пошук по користувачам
+                Section::make()
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Користувач')
+                            ->options(User::query()->pluck('name', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                    ])
+                    ->columnSpan(2),
 
-                MorphToSelect::make('listable')
-                    ->label('Пов’язаний об’єкт')
-                    ->searchable()
-                    ->required()
-                    ->types([
-                        Type::make(Episode::class)
-                            ->titleAttribute('name'),
-                        Type::make(Anime::class)
-                            ->titleAttribute('name'),
-                        Type::make(Selection::class)
-                            ->titleAttribute('name'),
-                        Type::make(Tag::class)
-                            ->titleAttribute('name'),
-                        Type::make(Person::class)
-                            ->titleAttribute('name'),
+                Section::make()
+                    ->schema([
+                        MorphToSelect::make('listable')
+                            ->label('Пов’язаний об’єкт')
+                            ->searchable()
+                            ->required()
+                            ->preload()
+                            ->types([
+                                Type::make(Episode::class)
+                                    ->titleAttribute('name'),
+                                Type::make(Anime::class)
+                                    ->titleAttribute('name'),
+                                Type::make(Selection::class)
+                                    ->titleAttribute('name'),
+                                Type::make(Tag::class)
+                                    ->titleAttribute('name'),
+                                Type::make(Person::class)
+                                    ->titleAttribute('name'),
+                            ]),
+                    ])
+                    ->columnSpan(2),
+
+                Section::make()
+                    ->schema([
+                        Select::make('type')
+                            ->label('Тип')
+                            ->options(UserListType::labels())
+                            ->required(),
                     ]),
-
-                Forms\Components\Select::make('type')
-                    ->label('Тип')
-                    ->options(UserListType::labels())
-                    ->required(),
             ]);
     }
 
@@ -76,11 +94,13 @@ class UserListResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('user_id')
+                TextColumn::make('user.name')
                     ->label('Користувач')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
 
                 TextColumn::make('listable_type')
                     ->label('Тип об’єкта')
@@ -93,58 +113,49 @@ class UserListResource extends Resource
                         Selection::class=> 'success',
                         default => 'muted',
                     })
-                    ->formatStateUsing(fn ($state) => substr($state, 24)),
+                    ->formatStateUsing(function ($state) {
+                        return class_basename($state);
+                    })
+                    ->badge()
+                    ->icon(fn ($state) => match ($state) {
+                        Anime::class => 'heroicon-s-film',
+                        Episode::class => 'heroicon-s-rectangle-stack',
+                        Person::class=> 'heroicon-s-user-group',
+                        Tag::class=> 'heroicon-s-hashtag',
+                        Selection::class=> 'heroicon-s-queue-list',
+                        default => 'heroicon-s-film'}),
 
                 TextColumn::make('listable_id')
-                    ->label('ID об’єкта')
+                    ->label('Назва об’єкта')
+                    ->formatStateUsing(function ($state, $record) {
+                        $modelClass = $record->listable_type;
+                        $modelInstance = $modelClass::find($state);
+                        if ($modelInstance) {
+                            return $modelInstance->name;
+                        }
+                        return 'N/A';
+                    })
                     ->sortable(),
 
                 TextColumn::make('type')
                     ->sortable()
                     ->label('Тип')
-                    ->color(fn ($state) => match ($state) {
-                        UserListType::NOT_WATCHING => 'primary',
-                        UserListType::STOPPED => 'secondary',
-                        UserListType::WATCHED => 'warning',
-                        UserListType::PLANNED => 'info',
-                        UserListType::FAVORITE => 'danger',
-                        UserListType::WATCHING => 'success',
-                        default => 'muted',
-                    })
+                    ->color(fn (UserListType $state): string => $state->getBadgeColor())
+                    ->icon(fn (UserListType $state) => $state->getIcon())
+                    ->badge()
                     ->formatStateUsing(fn ($state) => $state->name()),
             ])
             ->filters([
-                SelectFilter::make('type')
-                    ->label('Тип')
-                    ->options(UserListType::labels()),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit')
-                    ->icon('heroicon-o-pencil')
-                    ->color('primary'),
-
-                // Додавання дії "Видалити"
-                DeleteAction::make()
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->modalHeading('Are you sure you want to delete this record?') // Заголовок модального вікна
-                    ->modalSubheading('This action cannot be undone.') // Текст у модальному вікні
-                    ->action(fn (Model $record) => $record->delete()),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                // Масова дія для видалення, яка також підтверджує перед виконанням
-                DeleteBulkAction::make()
-                    ->label('Delete Selected')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->before(fn (array $records) => // Логіка перед видаленням
-                    collect($records)->filter(fn ($record) => $record->is_published)
-                        ->each(fn ($record) => $record->addError('id', 'Cannot delete published records.'))
-                    ),
+                DeleteBulkAction::make(),
             ])
-            ->defaultSort('created_at', 'desc'); // Default sort by creation date, descending
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

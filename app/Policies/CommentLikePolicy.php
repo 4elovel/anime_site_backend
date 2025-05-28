@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\CommentLike;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\CommentLike;
+use AnimeSite\Models\User;
 
 class CommentLikePolicy
 {
@@ -36,7 +36,7 @@ class CommentLikePolicy
      */
     public function update(User $user, CommentLike $commentLike): bool
     {
-        return true;
+        return $user->id === $commentLike->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class CommentLikePolicy
      */
     public function delete(User $user, CommentLike $commentLike): bool
     {
-        return true;
+        return $user->id === $commentLike->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class CommentLikePolicy
      */
     public function restore(User $user, CommentLike $commentLike): bool
     {
-        return true;
+        return $user->id === $commentLike->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class CommentLikePolicy
      */
     public function forceDelete(User $user, CommentLike $commentLike): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

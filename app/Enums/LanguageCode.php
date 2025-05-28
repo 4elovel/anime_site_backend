@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum LanguageCode: string
 {
@@ -14,6 +14,9 @@ enum LanguageCode: string
     case JAPANESE = 'ja';
     case RUSSIAN = 'ru';
     case POLISH = 'pl';
+    case ARABIC = 'ar';
+    case PORTUGUESE = 'pt';
+    case DUTCH = 'nl';
 
     /**
      * Get the language name by the code.
@@ -21,34 +24,57 @@ enum LanguageCode: string
     public function getName(): string
     {
         return match($this) {
-            self::ENGLISH => 'English',
-            self::UKRAINIAN => 'Ukrainian',
-            self::FRENCH => 'French',
-            self::GERMAN => 'German',
-            self::SPANISH => 'Spanish',
-            self::ITALIAN => 'Italian',
-            self::CHINESE => 'Chinese',
-            self::JAPANESE => 'Japanese',
-            self::RUSSIAN => 'Russian',
-            self::POLISH => 'Polish',
+            self::ENGLISH => 'Англійська',
+            self::UKRAINIAN => 'Українська',
+            self::FRENCH => 'Французька',
+            self::GERMAN => 'Німецька',
+            self::SPANISH => 'Іспанська',
+            self::ITALIAN => 'Італійська',
+            self::CHINESE => 'Китайська',
+            self::JAPANESE => 'Японська',
+            self::RUSSIAN => 'Російська',
+            self::POLISH => 'Польська',
+            self::ARABIC => 'Арабська',
+            self::PORTUGUESE => 'Португальська',
+            self::DUTCH => 'Нідерландська',
         };
     }
 
-    /**
-     * Get all languages as an array of codes and names.
-     */
-    public static function all(): array
+    public static function labels(): array
     {
-        return array_map(fn($case) => [
-            'code' => $case->value,
-            'name' => $case->getName(),
-        ], self::cases());
+        return [
+            self::ENGLISH->value => 'English',
+            self::UKRAINIAN->value => 'Ukrainian',
+            self::FRENCH->value => 'French',
+            self::GERMAN->value => 'German',
+            self::SPANISH->value => 'Spanish',
+            self::ITALIAN->value => 'Italian',
+            self::CHINESE->value => 'Chinese',
+            self::JAPANESE->value => 'Japanese',
+            self::RUSSIAN->value => 'Russian',
+            self::POLISH->value => 'Polish',
+            self::ARABIC->value => 'Arabic',
+            self::PORTUGUESE->value => 'Portuguese',
+            self::DUTCH->value => 'Dutch',
+        ];
     }
 
+    /**
+     * Get all language codes as options for select fields
+     */
     public static function options(): array
     {
-        return array_map(fn($case) => [
-            'name' => $case->getName(),
-        ], self::cases());
+        return collect(self::cases())->mapWithKeys(fn (self $language) => [
+            $language->value => $language->getName()
+        ])->toArray();
     }
+
+    /**
+     * Get all language codes as values
+     */
+    public static function values(): array
+    {
+        return collect(self::cases())->map(fn (self $language) => $language->value)->toArray();
+    }
+
 }

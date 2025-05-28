@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Providers;
+namespace AnimeSite\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;

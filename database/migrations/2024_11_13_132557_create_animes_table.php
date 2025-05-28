@@ -4,11 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Liamtseva\Cinema\Enums\Kind;
-use Liamtseva\Cinema\Enums\Period;
-use Liamtseva\Cinema\Enums\RestrictedRating;
-use Liamtseva\Cinema\Enums\Source;
-use Liamtseva\Cinema\Enums\Status;
+use AnimeSite\Enums\Kind;
+use AnimeSite\Enums\Period;
+use AnimeSite\Enums\RestrictedRating;
+use AnimeSite\Enums\Source;
+use AnimeSite\Enums\Status;
 
 return new class extends Migration
 {

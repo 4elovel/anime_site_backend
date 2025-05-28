@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Models\Person;
+use AnimeSite\Models\Person;
 
 class PersonSeeder extends Seeder
 {

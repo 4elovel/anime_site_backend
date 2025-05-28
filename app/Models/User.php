@@ -1,8 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use AnimeSite\Builders\UserBuilder;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -14,10 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Liamtseva\Cinema\Enums\Gender;
-use Liamtseva\Cinema\Enums\NotificationType;
-use Liamtseva\Cinema\Enums\Role;
-use Liamtseva\Cinema\Enums\UserListType;
+use Laravel\Sanctum\HasApiTokens;
+use AnimeSite\Enums\Gender;
+use AnimeSite\Enums\NotificationType;
+use AnimeSite\Enums\Role;
+use AnimeSite\Enums\UserListType;
+use AnimeSite\Models\Traits\HasFiles;
 
 /**
  * @mixin IdeHelperUser
@@ -25,42 +28,63 @@ use Liamtseva\Cinema\Enums\UserListType;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, Notifiable;
+    use HasFactory, HasUlids, Notifiable, HasFiles, HasApiTokens;
+    protected $casts = [
+        'role' => Role::class,
+        'gender' => Gender::class,
+        'email_verified_at' => 'datetime',
+        'birthday' => 'date',
+        'password' => 'hashed',
+
+        // Ban status
+        'is_banned' => 'boolean',
+
+        // User preferences
+        'allow_adult' => 'boolean',
+        'is_auto_next' => 'boolean',
+        'is_auto_play' => 'boolean',
+        'is_auto_skip_intro' => 'boolean',
+        'is_private_favorites' => 'boolean',
+
+        // Notification preferences - Episodes
+        'notify_new_episodes' => 'boolean',
+        'notify_episode_date_changes' => 'boolean',
+        'notify_announcement_to_ongoing' => 'boolean',
+
+        // Notification preferences - Comments
+        'notify_comment_replies' => 'boolean',
+        'notify_comment_likes' => 'boolean',
+
+        // Notification preferences - Ratings
+        'notify_review_replies' => 'boolean',
+
+        // Notification preferences - UserList
+        'notify_planned_reminders' => 'boolean',
+
+        // Notification preferences - Selections
+        'notify_new_selections' => 'boolean',
+
+        // Notification preferences - Movies
+        'notify_status_changes' => 'boolean',
+        'notify_new_seasons' => 'boolean',
+
+        // Notification preferences - Subscription
+        'notify_subscription_expiration' => 'boolean',
+        'notify_subscription_renewal' => 'boolean',
+        'notify_payment_issues' => 'boolean',
+        'notify_tariff_changes' => 'boolean',
+
+        // Notification preferences - System
+        'notify_site_updates' => 'boolean',
+        'notify_maintenance' => 'boolean',
+        'notify_security_changes' => 'boolean',
+        'notify_new_features' => 'boolean',
+    ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
-    public function scopeAllowedAdults(Builder $query): Builder
-    {
-        return $query->where('allow_adult', true);
-    }
-
-    public function scopeByRole(Builder $query, Role $role): Builder
-    {
-        return $query->where('role', $role->value);
-    }
-
-    public function scopeIsAdmin(Builder $query): Builder
-    {
-        return $query->where('role', Role::ADMIN->value);
-    }
-
-    public function scopeVipCustomer(Builder $query): Builder
-    {
-        return $query->where('vip', true);
-    }
-
-    public function scopeByAchievement(Builder $query, string $achievementId): Builder
-    {
-        return $query->where('achievement_id', $achievementId);
-    }
-
-    public function scopeCompletedAchievement(Builder $query, int $maxCounts): Builder
-    {
-        return $query->where('progress_count', '>=', $maxCounts);
-    }
 
     public function ratings(): HasMany
     {
@@ -106,8 +130,13 @@ class User extends Authenticatable implements FilamentUser
 
     public function achievements(): BelongsToMany
     {
-        return $this->BelongsToMany(Achievement::class)
+        return $this->belongsToMany(Achievement::class, 'achievement_user')
             ->withPivot('progress_count');
+    }
+
+    public function achievementsPivot()
+    {
+        return $this->hasMany(AchievementUser::class, 'user_id');
     }
 
     public function favoriteAnimes(): HasMany
@@ -120,11 +149,6 @@ class User extends Authenticatable implements FilamentUser
     public function userLists(): HasMany
     {
         return $this->hasMany(UserList::class);
-    }
-
-    public function notificationHistory(): HasMany
-    {
-        return $this->hasMany(NotificationHistory::class);
     }
 
     public function favoritePeople(): HasMany
@@ -185,7 +209,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->isAdmin();
     }
 
     public function isAdmin(): bool
@@ -193,8 +217,24 @@ class User extends Authenticatable implements FilamentUser
         return $this->role == Role::ADMIN;
     }
 
-    // TODO: отримати реальний шлях до картинки
+    public function isModerator(): bool
+    {
+        return $this->role == Role::MODERATOR;
+    }
 
+    public function newEloquentBuilder($query): UserBuilder
+    {
+        return new UserBuilder($query);
+    }
+
+    public function subscriptions() : HasMany
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+    public function payments() : HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
     protected function casts(): array
     {
         return [
@@ -206,10 +246,4 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    protected function avatar(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value ? asset("storage/$value") : null
-        );
-    }
 }

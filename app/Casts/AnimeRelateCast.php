@@ -1,12 +1,12 @@
 <?php
 
-namespace Liamtseva\Cinema\Casts;
+namespace AnimeSite\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Liamtseva\Cinema\Enums\AnimeRelateType;
-use Liamtseva\Cinema\ValueObjects\AnimeRelate;
+use AnimeSite\Enums\AnimeRelateType;
+use AnimeSite\ValueObjects\AnimeRelate;
 
 class AnimeRelateCast implements CastsAttributes
 {
@@ -18,7 +18,10 @@ class AnimeRelateCast implements CastsAttributes
         $collection = collect(json_decode($value, true));
 
         return $collection->isNotEmpty() ? $collection
-            ->map(fn ($item) => new AnimeRelate($item['anime_id'], AnimeRelateType::from($item['type']))) : $collection;
+            ->map(fn ($item) => new AnimeRelate(
+                anime_id: $item['anime_id'],
+                type: AnimeRelateType::from($item['type'])
+            )) : $collection;
     }
 
     /**
@@ -39,10 +42,8 @@ class AnimeRelateCast implements CastsAttributes
                     return null;
                 }
 
-                return [
-                    'anime_id' => $mr->anime_id,
-                    'type' => $mr->type,
-                ];
+                // Using JsonSerializable interface
+                return $mr;
             })->filter()->toArray()  // .filter() видаляє null значення
         );
     }

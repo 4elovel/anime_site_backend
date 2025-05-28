@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\SearchHistory;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\SearchHistory;
+use AnimeSite\Models\User;
 
 class SearchHistoryPolicy
 {
@@ -12,7 +12,7 @@ class SearchHistoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -20,7 +20,7 @@ class SearchHistoryPolicy
      */
     public function view(User $user, SearchHistory $searchHistory): bool
     {
-        return true;
+        return $user->id === $searchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +36,7 @@ class SearchHistoryPolicy
      */
     public function update(User $user, SearchHistory $searchHistory): bool
     {
-        return true;
+        return $user->id === $searchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class SearchHistoryPolicy
      */
     public function delete(User $user, SearchHistory $searchHistory): bool
     {
-        return true;
+        return $user->id === $searchHistory->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class SearchHistoryPolicy
      */
     public function restore(User $user, SearchHistory $searchHistory): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class SearchHistoryPolicy
      */
     public function forceDelete(User $user, SearchHistory $searchHistory): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

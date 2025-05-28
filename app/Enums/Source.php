@@ -1,6 +1,6 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum Source: string
 {
@@ -82,5 +82,18 @@ enum Source: string
         return collect(self::cases())
             ->mapWithKeys(fn (self $source) => [$source->value => $source->name()])
             ->toArray();
+    }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::DORAMA => 'info',
+            self::MANGA => 'primary',
+            self::GAME => 'success',
+            self::NOVEL => 'warning',
+            self::COMIC => 'danger',
+            self::LIGHT_NOVEL => 'success',
+            self::WEBTOON => 'danger',
+        };
     }
 }

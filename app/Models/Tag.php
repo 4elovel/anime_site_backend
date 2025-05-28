@@ -1,7 +1,8 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
+use AnimeSite\Builders\TagBuilder;
 use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -12,7 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Liamtseva\Cinema\Models\Traits\HasSeo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use AnimeSite\Models\Traits\HasFiles;
+use AnimeSite\Models\Traits\HasSeo;
 
 /**
  * @mixin IdeHelperTag
@@ -20,41 +23,63 @@ use Liamtseva\Cinema\Models\Traits\HasSeo;
 class Tag extends Model
 {
     /** @use HasFactory<TagFactory> */
-    use HasFactory, HasSeo, HasUlids;
+    use HasFactory, HasSeo, HasUlids, HasFiles;
+    protected $fillable = [
+        'slug',
+        'name',
+        'description',
+        'image',
+        'aliases',
+        'is_genre',
+        'meta_title',
+        'meta_description',
+        'meta_image',
+        'parent_id',
+    ];
 
-    public function scopeGenres($query)
+    protected $hidden = ['taggables'];
+
+    protected $casts = [
+        'aliases' => 'array',
+        'is_genre' => 'boolean',
+    ];
+
+
+    /**
+     * Зв'язок з аніме (поліморфний)
+     */
+    public function animes(): MorphToMany
     {
-        return $query->where('is_genre', true);
+        return $this->morphedByMany(Anime::class, 'taggable', 'taggables');
     }
 
-    public function scopeSearch($query, string $term)
+    /**
+     * Зв'язок з персонами (поліморфний)
+     */
+    public function people(): MorphToMany
     {
-        return $query->where('name', 'LIKE', "%{$term}%")
-            ->orWhere('slug', 'LIKE', "%{$term}%");
+        return $this->morphedByMany(Person::class, 'taggable', 'taggables');
     }
 
-    public function animes(): BelongsToMany
+    /**
+     * Зв'язок з добірками (поліморфний)
+     */
+    public function selections(): MorphToMany
     {
-        return $this->belongsToMany(Anime::class);
+        return $this->morphedByMany(Selection::class, 'taggable', 'taggables');
+    }
+
+    /**
+     * Зв'язок з усіма моделями, які мають теги
+     */
+    public function taggables(): MorphToMany
+    {
+        return $this->morphedByMany(Model::class, 'taggable', 'taggables');
     }
 
     public function userLists(): MorphMany
     {
         return $this->morphMany(UserList::class, 'listable');
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'aliases' => AsCollection::class,
-        ];
-    }
-
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value ? url("storage/$value") : null
-        );
     }
 
     public function parent(): BelongsTo
@@ -65,5 +90,10 @@ class Tag extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function newEloquentBuilder($query): TagBuilder
+    {
+        return new TagBuilder($query);
     }
 }

@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Liamtseva\Cinema\Enums\Kind;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
+use AnimeSite\Enums\Kind;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
 
 class EpisodeSeeder extends Seeder
 {

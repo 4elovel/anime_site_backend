@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Liamtseva\Cinema\Enums\Gender;
-use Liamtseva\Cinema\Enums\Role;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Enums\Gender;
+use AnimeSite\Enums\Role;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<User>
@@ -36,6 +36,10 @@ class UserFactory extends Factory
             'is_auto_play' => fake()->boolean(50),
             'is_auto_skip_intro' => fake()->boolean(60),
             'is_private_favorites' => fake()->boolean(40),
+
+            // Ban status
+            'is_banned' => fake()->boolean(5), // 5% chance of being banned
+
         ];
     }
 
@@ -57,6 +61,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'gender' => $gender->value,
+        ]);
+    }
+
+    public function banned(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_banned' => true,
         ]);
     }
 }

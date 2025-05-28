@@ -1,28 +1,42 @@
 <?php
 
-namespace Liamtseva\Cinema\Http\Requests;
+namespace AnimeSite\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSearchHistoryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'query' => [
+                'required',
+                'string',
+                'max:248', // Обмеження довжини запиту
+            ],
         ];
+    }
+
+    /**
+     * Кастомні повідомлення для помилок валідації.
+     */
+    public function messages(): array
+    {
+        return [
+            'query.required' => 'Пошуковий запит є обов’язковим.',
+            'query.string' => 'Пошуковий запит має бути рядком.',
+            'query.max' => 'Пошуковий запит не може перевищувати 248 символів.',
+        ];
+    }
+
+    /**
+     * Підготовка даних перед валідацією.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Додаємо user_id автоматично з авторизованого користувача
+        $this->merge([
+            'user_id' => auth()->id(),
+        ]);
     }
 }

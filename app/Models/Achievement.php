@@ -1,15 +1,16 @@
 <?php
 
-namespace Liamtseva\Cinema\Models;
+namespace AnimeSite\Models;
 
+use AnimeSite\Models\Traits\HasSeo;
 use Database\Factories\AchievementFactory;
-use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use AnimeSite\Builders\AchievementBuilder;
 
 /**
  * @mixin IdeHelperAchievement
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Achievement extends Model
 {
     /** @use HasFactory<AchievementFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, HasSeo;
     public $timestamps = false;
 
     public function users(): BelongsToMany
@@ -26,8 +27,8 @@ class Achievement extends Model
             ->withPivot('progress_count');
     }
 
-    public function scopeByUser(Builder $query, string $userId): Builder
+    public function newEloquentBuilder($query): AchievementBuilder
     {
-        return $query->where('user_id', $userId);
+        return new AchievementBuilder($query);
     }
 }

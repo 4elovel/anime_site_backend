@@ -4,11 +4,11 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
-use Liamtseva\Cinema\Models\Comment;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Selection;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Models\Comment;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Selection;
+use AnimeSite\Models\User;
 
 /**
  * @extends Factory<Comment>
@@ -40,21 +40,6 @@ class CommentFactory extends Factory
         ];
     }
 
-    /**
-     * Встановлює батьківський коментар (для вкладених коментарів).
-     */
-    public function withParent(Comment $parent): self
-    {
-        return $this->state(fn () => ['parent_id' => $parent->id]);
-    }
-
-    /**
-     * Для коментаря, який є кореневим.
-     */
-    public function root(): self
-    {
-        return $this->state(fn () => ['parent_id' => null]);
-    }
 
     /**
      * Встановлює коментар як відповідь на інший коментар.
@@ -62,7 +47,6 @@ class CommentFactory extends Factory
     public function replyTo(Comment $parentComment): self
     {
         return $this->state(fn () => [
-            'parent_id' => $parentComment->id,
             'commentable_id' => $parentComment->commentable_id,
             'commentable_type' => $parentComment->commentable_type,
         ]);

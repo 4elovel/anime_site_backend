@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Liamtseva\Cinema\Models\Episode;
-use Liamtseva\Cinema\Models\User;
-use Liamtseva\Cinema\Models\WatchHistory;
+use AnimeSite\Models\Episode;
+use AnimeSite\Models\User;
+use AnimeSite\Models\WatchHistory;
 
 /**
  * @extends Factory<WatchHistory>

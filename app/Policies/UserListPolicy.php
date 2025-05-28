@@ -1,9 +1,9 @@
 <?php
 
-namespace Liamtseva\Cinema\Policies;
+namespace AnimeSite\Policies;
 
-use Liamtseva\Cinema\Models\User;
-use Liamtseva\Cinema\Models\UserList;
+use AnimeSite\Models\User;
+use AnimeSite\Models\UserList;
 
 class UserListPolicy
 {
@@ -12,7 +12,7 @@ class UserListPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -20,7 +20,7 @@ class UserListPolicy
      */
     public function view(User $user, UserList $userList): bool
     {
-        return true;
+        return $user->id === $user->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -36,7 +36,7 @@ class UserListPolicy
      */
     public function update(User $user, UserList $userList): bool
     {
-        return true;
+        return $user->id === $user->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -44,7 +44,7 @@ class UserListPolicy
      */
     public function delete(User $user, UserList $userList): bool
     {
-        return true;
+        return $user->id === $user->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -52,7 +52,7 @@ class UserListPolicy
      */
     public function restore(User $user, UserList $userList): bool
     {
-        return true;
+        return $user->id === $user->user_id || $user->isAdmin() || $user->isModerator();
     }
 
     /**
@@ -60,6 +60,6 @@ class UserListPolicy
      */
     public function forceDelete(User $user, UserList $userList): bool
     {
-        return true;
+        return $user->isAdmin() || $user->isModerator();
     }
 }

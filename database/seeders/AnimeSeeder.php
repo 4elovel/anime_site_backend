@@ -6,22 +6,23 @@ use Database\Factories\AnimeFactory;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
-use Liamtseva\Cinema\Enums\Kind;
-use Liamtseva\Cinema\Enums\Period;
-use Liamtseva\Cinema\Enums\RestrictedRating;
-use Liamtseva\Cinema\Enums\Source;
-use Liamtseva\Cinema\Models\Anime;
-use Liamtseva\Cinema\Models\Person;
-use Liamtseva\Cinema\Models\Studio;
-use Liamtseva\Cinema\Models\Tag;
-use Liamtseva\Cinema\Models\User;
+use AnimeSite\Enums\Kind;
+use AnimeSite\Enums\Period;
+use AnimeSite\Enums\RestrictedRating;
+use AnimeSite\Enums\Source;
+use AnimeSite\Models\Anime;
+use AnimeSite\Models\Person;
+use AnimeSite\Models\Studio;
+use AnimeSite\Models\Tag;
+use AnimeSite\Models\User;
 
 class AnimeSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create();
-        $animeFactory = new AnimeFactory;
+
+        Anime::factory(20)->create();
+
 
         /*// Отримуємо топ 100 фільмів/серіалів з TheanimeDB
         $animesData = $this->getTopanimesFromTMDB();

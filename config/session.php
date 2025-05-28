@@ -169,6 +169,7 @@ return [
     |
     */
 
+    'secure' => env('SESSION_SECURE_COOKIE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -198,6 +199,7 @@ return [
     |
     */
 
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
 
     /*
     |--------------------------------------------------------------------------
@@ -212,8 +214,5 @@ return [
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
     // In your session.php file, make sure these values are set correctly:
 
-    'secure' => env('SESSION_SECURE_COOKIE', null),  // Add this line
-
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),  // Change this to use env
 
 ];

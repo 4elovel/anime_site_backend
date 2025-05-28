@@ -1,47 +1,43 @@
 <?php
 
-namespace Liamtseva\Cinema\Enums;
+namespace AnimeSite\Enums;
 
 enum PersonType: string
 {
     case CHARACTER = 'character';
-    case DIRECTOR = 'director';
-    case PRODUCER = 'producer';
-    case WRITER = 'writer';
-    case EDITOR = 'editor';
-    case CINEMATOGRAPHER = 'cinematographer';
-    case COMPOSER = 'composer';
-    case ART_DIRECTOR = 'art_director';
-    case SOUND_DESIGNER = 'sound_designer';
-    case MAKEUP_ARTIST = 'makeup_artist';
-    case VOICE_ACTOR = 'voice_actor';
-    case STUNT_PERFORMER = 'stunt_performer';
-    case ASSISTANT_DIRECTOR = 'assistant_director';
-    case PRODUCER_ASSISTANT = 'producer_assistant';
-    case SCRIPT_SUPERVISOR = 'script_supervisor';
-    case PRODUCTION_DESIGNER = 'production_designer';
-    case VISUAL_EFFECTS_SUPERVISOR = 'visual_effects_supervisor';
+    case VOICE_ACTOR = 'Voice Actor'; // Актор озвучення
+    case DIRECTOR = 'Director'; // Режисер
+    case PRODUCER = 'Producer'; // Продюсер
+    case SCRIPTWRITER = 'Scriptwriter'; // Сценарист
+    case CHARACTER_DESIGNER = 'Character Designer'; // Дизайнер персонажів
+    case ANIMATION_DIRECTOR = 'Animation Director'; // Директор анімації
+    case KEY_ANIMATOR = 'Key Animator'; // Ключовий аніматор
+    case INBETWEEN_ANIMATOR = 'Inbetween Animator'; // Проміжний аніматор
+    case BACKGROUND_ARTIST = 'Background Artist'; // Художник фону
+    case COLOR_DESIGNER = 'Color Designer'; // Дизайнер кольору
+    case SOUND_DIRECTOR = 'Sound Director'; // Звуковий режисер
+    case MUSIC_COMPOSER = 'Music Composer'; // Композитор
+    case EDITOR = 'Editor'; // Монтажер
+    case CGI_ARTIST = 'CGI Artist'; // CGI-художник
 
     public function name(): string
     {
         return match ($this) {
             self::CHARACTER => 'Персонаж',
+            self::VOICE_ACTOR => 'Актор озвучення',
             self::DIRECTOR => 'Режисер',
             self::PRODUCER => 'Продюсер',
-            self::WRITER => 'Сценарист',
+            self::SCRIPTWRITER => 'Сценарист',
+            self::CHARACTER_DESIGNER => 'Дизайнер персонажів',
+            self::ANIMATION_DIRECTOR => 'Директор анімації',
+            self::KEY_ANIMATOR => 'Ключовий аніматор',
+            self::INBETWEEN_ANIMATOR => 'Проміжний аніматор',
+            self::BACKGROUND_ARTIST => 'Художник фону',
+            self::COLOR_DESIGNER => 'Дизайнер кольору',
+            self::SOUND_DIRECTOR => 'Звуковий режисер',
+            self::MUSIC_COMPOSER => 'Композитор',
             self::EDITOR => 'Монтажер',
-            self::CINEMATOGRAPHER => 'Оператор',
-            self::COMPOSER => 'Композитор',
-            self::ART_DIRECTOR => 'Художник-постановник',
-            self::SOUND_DESIGNER => 'Звуковий дизайнер',
-            self::MAKEUP_ARTIST => 'Візажист',
-            self::VOICE_ACTOR => 'Актор дубляжу',
-            self::STUNT_PERFORMER => 'Каскадер',
-            self::ASSISTANT_DIRECTOR => 'Помічник режисера',
-            self::PRODUCER_ASSISTANT => 'Помічник продюсера',
-            self::SCRIPT_SUPERVISOR => 'Супервайзер сценарію',
-            self::PRODUCTION_DESIGNER => 'Продакшн-дизайнер',
-            self::VISUAL_EFFECTS_SUPERVISOR => 'Супервайзер візуальних ефектів',
+            self::CGI_ARTIST => 'CGI-художник',
         };
     }
 
@@ -51,20 +47,39 @@ enum PersonType: string
             self::CHARACTER->value => self::CHARACTER->name(),
             self::DIRECTOR->value => self::DIRECTOR->name(),
             self::PRODUCER->value => self::PRODUCER->name(),
-            self::WRITER->value => self::WRITER->name(),
-            self::EDITOR->value => self::EDITOR->name(),
-            self::CINEMATOGRAPHER->value => self::CINEMATOGRAPHER->name(),
-            self::COMPOSER->value => self::COMPOSER->name(),
-            self::ART_DIRECTOR->value => self::ART_DIRECTOR->name(),
-            self::SOUND_DESIGNER->value => self::SOUND_DESIGNER->name(),
-            self::MAKEUP_ARTIST->value => self::MAKEUP_ARTIST->name(),
+            self::SCRIPTWRITER->value => self::SCRIPTWRITER->name(),
+            self::CHARACTER_DESIGNER->value => self::CHARACTER_DESIGNER->name(),
+            self::ANIMATION_DIRECTOR->value => self::ANIMATION_DIRECTOR->name(),
+            self::KEY_ANIMATOR->value => self::KEY_ANIMATOR->name(),
+            self::INBETWEEN_ANIMATOR->value => self::INBETWEEN_ANIMATOR->name(),
+            self::BACKGROUND_ARTIST->value => self::BACKGROUND_ARTIST->name(),
+            self::COLOR_DESIGNER->value => self::COLOR_DESIGNER->name(),
+            self::SOUND_DIRECTOR->value => self::SOUND_DIRECTOR->name(),
+            self::MUSIC_COMPOSER->value => self::MUSIC_COMPOSER->name(),
             self::VOICE_ACTOR->value => self::VOICE_ACTOR->name(),
-            self::STUNT_PERFORMER->value => self::STUNT_PERFORMER->name(),
-            self::ASSISTANT_DIRECTOR->value => self::ASSISTANT_DIRECTOR->name(),
-            self::PRODUCER_ASSISTANT->value => self::PRODUCER_ASSISTANT->name(),
-            self::SCRIPT_SUPERVISOR->value => self::SCRIPT_SUPERVISOR->name(),
-            self::PRODUCTION_DESIGNER->value => self::PRODUCTION_DESIGNER->name(),
-            self::VISUAL_EFFECTS_SUPERVISOR->value => self::VISUAL_EFFECTS_SUPERVISOR->name(),
+            self::EDITOR->value => self::EDITOR->name(),
+            self::CGI_ARTIST->value => self::CGI_ARTIST->name(),
         ];
+    }
+
+    public function getBadgeColor(): string
+    {
+        return match ($this) {
+            self::CHARACTER => 'danger',
+            self::VOICE_ACTOR => 'info',
+            self::DIRECTOR => 'danger',
+            self::PRODUCER => 'warning',
+            self::SCRIPTWRITER => 'warning',
+            self::CHARACTER_DESIGNER => 'success',
+            self::ANIMATION_DIRECTOR => 'danger',
+            self::KEY_ANIMATOR => 'primary',
+            self::INBETWEEN_ANIMATOR => 'info',
+            self::BACKGROUND_ARTIST => 'warning',
+            self::COLOR_DESIGNER => 'success',
+            self::SOUND_DIRECTOR => 'warning',
+            self::MUSIC_COMPOSER => 'info',
+            self::EDITOR => 'warning',
+            self::CGI_ARTIST => 'primary',
+        };
     }
 }

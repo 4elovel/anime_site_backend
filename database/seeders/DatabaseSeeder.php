@@ -23,13 +23,13 @@ class DatabaseSeeder extends Seeder
             CommentSeeder::class,
             CommentLikeSeeder::class,
             CommentReportSeeder::class,
-            SelectionSeeder::class,
             SearchHistorySeeder::class,
             WatchHistorySeeder::class,
             AchievementSeeder::class,
-            //AchievementUserSeeder::class,
-            //NotificationHistorySeeder::class,
-
+            AchievementUserSeeder::class,
+            TariffSeeder::class,
+            UserSubscriptionSeeder::class,
+            PaymentSeeder::class,
         ]);
     }
 }

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('comment_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
-            //$table->boolean('is_liked'); // true = liked, false = disliked
+            $table->boolean('is_liked'); // true = liked, false = disliked
             $table->timestamps();
 
             $table->unique(['comment_id', 'user_id']); // Запобігає дублюванню лайку чи дизлайку від одного користувача
