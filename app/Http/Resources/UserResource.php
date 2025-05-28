@@ -22,7 +22,7 @@ class UserResource extends JsonResource
             'birthday' => $this->birthday,
             'avatar' => $this->avatar,
             'allow_adult' => $this->allow_adult,
-            'vip' => $this->vip,
+            //'vip' => $this->vip, //TODO що таке віп
             'email_verified_at' => $this->email_verified_at,
             'ratings' => RatingResource::collection($this->whenLoaded('ratings')),
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
