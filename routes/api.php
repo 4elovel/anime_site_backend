@@ -1,5 +1,6 @@
 <?php
 
+use AnimeSite\Http\Controllers\Api\V1\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use AnimeSite\Http\Controllers\Api\V1\AnimeController;
@@ -15,7 +16,6 @@ use AnimeSite\Http\Controllers\Api\V1\UserController;
 use AnimeSite\Http\Controllers\Api\V1\UserListController;
 use AnimeSite\Http\Controllers\Api\V1\WatchHistoryController;
 use AnimeSite\Http\Controllers\Api\V1\AchievementController;
-use AnimeSite\Http\Controllers\Api\V1\AuthController;
 use AnimeSite\Http\Controllers\Api\V1\RecommendationController;
 use AnimeSite\Http\Controllers\Api\V1\NotificationController;
 use AnimeSite\Http\Controllers\Api\V1\TariffController;

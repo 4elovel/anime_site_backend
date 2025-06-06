@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use AnimeSite\Http\Controllers\Auth\VerifyEmailController;
+use AnimeSite\Http\Controllers\Api\V1\Auth\VerifyEmailController;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {

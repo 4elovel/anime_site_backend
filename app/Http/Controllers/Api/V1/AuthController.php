@@ -17,6 +17,7 @@ use AnimeSite\Http\Requests\LoginRequest;
 use AnimeSite\Http\Requests\RegisterRequest;
 use AnimeSite\Http\Requests\ResetPasswordRequest;
 use AnimeSite\Http\Resources\UserResource;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
@@ -34,7 +35,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
-        ], Response::HTTP_CREATED);
+        ], ResponseAlias::HTTP_CREATED);
     }
 
     /**
